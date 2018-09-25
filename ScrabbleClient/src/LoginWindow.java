@@ -1,5 +1,6 @@
-
+import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.Font;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -11,8 +12,6 @@ import java.awt.event.ActionEvent;
 public class LoginWindow {
 
 	private JFrame frame;
-	private JTextField textField;
-	public static 		JLabel tips = new JLabel("");
 
 	/**
 	 * Launch the application.
@@ -47,46 +46,53 @@ public class LoginWindow {
 		frame.getContentPane().setLayout(null);
 		
 		JLabel signinLabel = new JLabel("Scrabble Game Log in");
-		signinLabel.setBounds(24, 22, 180, 16);
+		signinLabel.setForeground(Color.black);
+		signinLabel.setFont(new Font("Arial",Font.BOLD,18));
+		signinLabel.setBounds(114, 22, 240, 16);
 		frame.getContentPane().add(signinLabel);
 		
 		JTextField usernametextField = new JTextField();
-		usernametextField.setBounds(83, 110, 161, 26);
+		usernametextField.setBounds(80, 148, 130, 26);
 		frame.getContentPane().add(usernametextField);
 		usernametextField.setColumns(10);
-		
-
-		tips.setBounds(143, 169, 211, 16);
-		frame.getContentPane().add(tips);
 		
 		JButton loginButton = new JButton("Log in");
 		loginButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String username=usernametextField.getText();
-				if(username.isEmpty())
-				{
-					tips.setText("username can not be empty");
-				}
-				else{
-					ConnectServer.username=username;
-					Thread t = new Thread(() -> ConnectServer.creatUser(username));
-					t.start();
-				}
-				
+				String username = usernametextField.getText();
+				MainWindow mw = new MainWindow();
 			}
 		});
-		loginButton.setBounds(287, 110, 117, 29);
+		loginButton.setBounds(287, 148, 117, 29);
 		frame.getContentPane().add(loginButton);
 		
 		JLabel errorNewLabel = new JLabel();
-		errorNewLabel.setBounds(37, 197, 369, 42);
+		errorNewLabel.setBounds(90, 189, 290, 38);
 		frame.getContentPane().add(errorNewLabel);
 		
-
-	}
-	
-	public static void up()
-	{
-		MainWindow mw = new MainWindow();
+		JLabel ipLabel = new JLabel("IP address:");
+		ipLabel.setBounds(37, 67, 91, 16);
+		frame.getContentPane().add(ipLabel);
+		
+		JLabel portLabel = new JLabel("Port:");
+		portLabel.setBounds(240, 67, 61, 16);
+		frame.getContentPane().add(portLabel);
+		
+		JLabel usernameLabel = new JLabel("Your name:");
+		usernameLabel.setBounds(37, 120, 84, 16);
+		frame.getContentPane().add(usernameLabel);
+		
+		JTextField ipTesxtField = new JTextField();
+		ipTesxtField.setBounds(80, 87, 130, 26);
+		frame.getContentPane().add(ipTesxtField);
+		ipTesxtField.setColumns(10);
+		
+		JTextField portField = new JTextField();
+		portField.setBounds(278, 87, 130, 26);
+		frame.getContentPane().add(portField);
+		portField.setColumns(10);
+		
+		frame.setVisible(true);
+		
 	}
 }
