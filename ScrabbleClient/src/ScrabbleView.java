@@ -1,4 +1,3 @@
-
 import java.awt.Color;
 import java.awt.EventQueue;
 
@@ -11,6 +10,7 @@ import java.awt.GridBagLayout;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.border.Border;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.text.Document;
 
 import java.awt.GridBagConstraints;
@@ -23,6 +23,7 @@ import java.awt.Font;
 
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.awt.event.ActionEvent;
 import javax.swing.JLabel;
@@ -31,15 +32,20 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import javax.swing.JScrollPane;
 
 public class ScrabbleView {
 
 	private JFrame frame;
 	private String regx ="[A-Z]{1}";
-	public static String[][] record = new String[21][21];
-	static JTextField[][] scrabbleTextField =new JTextField[21][21];
+	private String[][] record = new String[21][21];	
+	
 
 	/**
 	 * Launch the application.
@@ -71,10 +77,10 @@ public class ScrabbleView {
 	{
 		frame = new JFrame();
 		frame.setBounds(100, 100, 950, 800);
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		frame.setTitle("Scrabble Game");
 		
+		//Menu part
 		JMenuBar menubar;
 	    JMenu gameMenu; 
 	    JMenuItem quitItem;
@@ -89,20 +95,40 @@ public class ScrabbleView {
         gameMenu.add(quitItem);       
         menubar.add(gameMenu);
         frame.setJMenuBar(menubar);
+        
+        //user turn diaplay
+        JLabel turnLabel = new JLabel("Turn:");
+        turnLabel.setForeground(Color.red);
+		 turnLabel.setBounds(21, 12, 103, 31);
+		frame.getContentPane().add(turnLabel);
 		
+		JLabel userTurnDisplayLabel = new JLabel("Display user name here");
+		userTurnDisplayLabel.setForeground(Color.red);
+		userTurnDisplayLabel.setBounds(31, 55, 109, 16);
+		frame.getContentPane().add(userTurnDisplayLabel);
+		
+        //Player name and score table part
+        String[] title = {"USER NAME", "GAME SCORE"};
+		Object[][] playerInfo = {
+		            { "王鹏", new Integer(91)},
+		            { "朱学莲", new Integer(82)},
+		            { "梅婷", new Integer(47), },
+		            { "赵龙", new Integer(61),  },
+		            { "李兵", new Integer(90) }, };
+		 
+		JTable table = new JTable(playerInfo, title);
+		
+		JScrollPane resultscrollPane = new JScrollPane(table);
+		resultscrollPane.setBounds(152, 18, 411, 66);
+		frame.getContentPane().add(resultscrollPane);
+		
+		//Game board part
 		JPanel panel = new JPanel();
 		panel.setBounds(6, 100, 650, 650);
 		frame.getContentPane().add(panel);
 		panel.setLayout(new GridLayout(21,21));
 		
-		for(int x=0;x<21;x++)
-		{
-			for(int y=0;y<21;y++)
-			{
-				record[x][y]="";
-			}
-		}
-
+		JTextField[][] scrabbleTextField =new JTextField[21][21];
 		for(int i=0;i<21;i++)
 		{
 			for(int j=0;j<21;j++)
@@ -112,9 +138,7 @@ public class ScrabbleView {
 				scrabbleTextField[i][j].setHorizontalAlignment(JTextField.CENTER);
 				scrabbleTextField[i][j].setBorder(BorderFactory.createLineBorder(Color.black));
 				scrabbleTextField[i][j].setFont(new Font("Arial",Font.BOLD,18));		 
-				panel.add(scrabbleTextField[i][j]);	
-							
-				scrabbleTextField[i][j].setText(record[i][j]);
+				panel.add(scrabbleTextField[i][j]);				
 			}
 			
 		}		
@@ -232,33 +256,8 @@ public class ScrabbleView {
 				  scrabbleTextField[i][j].setForeground(Color.gray);
 			  }
 		  }
-
-
-
-		  
 		
-
-		
-		JLabel userNameLabel = new JLabel("Name");
-		userNameLabel.setForeground(Color.RED);
-		userNameLabel.setBounds(75, 16, 61, 16);
-		userNameLabel.setFont(new Font("Arial",Font.BOLD,18));
-		frame.getContentPane().add(userNameLabel);
-		
-		JLabel userScoreLabel = new JLabel("Score");
-		userScoreLabel.setForeground(Color.RED);
-		userScoreLabel.setBounds(75, 57, 61, 16);
-		userScoreLabel.setFont(new Font("Arial",Font.BOLD,18));
-		frame.getContentPane().add(userScoreLabel);
-		
-		JLabel nameDisplayLabel = new JLabel("label for displaying username");
-		nameDisplayLabel.setBounds(148, 16, 490, 29);
-		frame.getContentPane().add(nameDisplayLabel);
-		
-		JLabel scoreDisplayLabel = new JLabel("label for displaying score of each user");
-		scoreDisplayLabel.setBounds(148, 57, 490, 29);
-		frame.getContentPane().add(scoreDisplayLabel);
-		
+		//Vote part
 		JLabel voteLabel = new JLabel("Your Vote");
 		voteLabel.setForeground(Color.RED);
 		voteLabel.setBounds(751, 207, 107, 16);
@@ -282,6 +281,7 @@ public class ScrabbleView {
 		noBtn.setBounds(817, 242, 61, 50);
 		frame.getContentPane().add(noBtn);
 		
+		//Choice part
 		JLabel decisionLabel = new JLabel("Your choice");
 		decisionLabel.setForeground(Color.RED);
 		decisionLabel.setBounds(736, 100, 137, 20);
@@ -291,7 +291,6 @@ public class ScrabbleView {
 		JButton changeBtn = new JButton("Change");
 		changeBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				checkupdated(scrabbleTextField);
 			}
 		});
 		changeBtn.setBounds(668, 147, 117, 42);
@@ -305,6 +304,8 @@ public class ScrabbleView {
 		passBtn.setBounds(802, 149, 117, 39);
 		frame.getContentPane().add(passBtn);
 		
+		
+		//Chat part
 		JTextArea chatTextArea = new JTextArea();
 		chatTextArea.setBounds(668, 377, 251, 137);
 		chatTextArea.setEditable(false);
@@ -353,7 +354,9 @@ public class ScrabbleView {
 		chatErrorLable.setForeground(Color.RED);
 		chatErrorLable.setBounds(668, 661, 276, 42);
 		frame.getContentPane().add(chatErrorLable);		
-		frame.setVisible(true);
+		
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setVisible(true);	
 	}
 	
 	public void updateBoard(JTextField [][] textfield)
@@ -370,32 +373,34 @@ public class ScrabbleView {
 	
 	public void checkupdated(JTextField [][] textfield)
 	{
-		for(int i=1; i<21;i++)
+		//int time=0;
+		for(int i=0; i<21;i++)
 		{
-			for(int j=1;j<21;j++)
+			for(int j=0;j<21;j++)
            {
-              if(!record [i][j].equals(textfield[i][j].getText()))
+              if(record [i][j] != textfield[i][j].getText())
               {
-            	  int xText=j-1;
-            	  int yText =i-1;
+            	  //time +=1;
+            	  int xText=i;
+            	  int yText =j;
             	  String changedText = textfield[i][j].getText();
-            	 // System.out.print(record[i][j]+"-----"+textfield[i][j].getText());
-            	  //System.out.println(changedText.toCharArray()[0]);
-            	  AddTasks.addLetter(changedText.toCharArray()[0], xText, yText);
             	  
               }
               
            }
 		}
 	}
-	public static void updateScrabble()
+	
+	public static Object[][] displayResult(Map<String, Integer> result)
 	{
-		for(int i=1;i<21;i++)
-		{
-			for(int j=1;j<21;j++)
-			{
-				scrabbleTextField[i][j].setText(record[i][j]);
-			}
-		}
-	}
+		int index= 0;
+		Object[][] obj =new Object[result.size()][2];
+    	for (Map.Entry<String, Integer> entry : result.entrySet())
+    	{ 
+    		obj[index][0]= entry.getKey();
+    		obj[index][1]= entry.getValue();
+    		index++;
+    	}   	
+		return obj;      
+   }
 }
