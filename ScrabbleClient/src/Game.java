@@ -100,7 +100,7 @@ public class Game
 			return false;
 		for(int i=0;i<users.size();i++)
 		{
-			if(operations.get(operations.size()-i).getPass())
+			if(operations.get(operations.size()-i-1).getPass())
 				return false;
 		}
 		return true;
