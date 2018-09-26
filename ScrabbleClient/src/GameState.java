@@ -141,7 +141,7 @@ public class GameState
 			Integer score = entry.getValue();
 			System.out.println(user+score);
 		}
-		int score=scores.get(operation.getUser())+verticalScore+horizontalScore;
+		int score=scores.get(operation.getUser())+verticalScore+horizontalScore+1;
 		scores.remove(operation.getUser());
 		scores.put(operation.getUser(), score);
 	}

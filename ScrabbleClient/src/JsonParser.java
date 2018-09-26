@@ -239,4 +239,20 @@ public class JsonParser
 		String[] words=longString.split(",");
 		return words;
 	}
+	// check alive: server to client
+	 public static JSONObject generateJsonAlive()
+	 {
+	  JSONObject newCommand = new JSONObject();
+	  newCommand.put("commandType", "alive");
+	  return newCommand;
+	 }
+	 
+	 // check alive reply: client to server
+	 public static JSONObject generateJsonAliveReply(String username)
+	 {
+	  JSONObject newCommand = new JSONObject();
+	  newCommand.put("commandType", "aliveReply");
+	  newCommand.put("user", username);
+	  return newCommand;
+	 }
 }

@@ -8,7 +8,9 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -16,10 +18,11 @@ import org.json.simple.parser.ParseException;
 
 public class ConnectServer {
 	
-	private static String ip = "localhost";
+	public static String ip = "192.168.1.5";
 	private static int port = 4444;
 	public static String login=null;
 	public static String username;
+	public static List<String> allUsersExceptSelf=new ArrayList<>();
 	public static List<String> usernames;
 	public static List<String> invitedUsers=new ArrayList<>();
 	public static List<JSONObject> tasks=new ArrayList<>();
@@ -27,6 +30,7 @@ public class ConnectServer {
 	public static String gameCreater;
 	public static String[] allPlayers;
 	public static Game game;
+	public static HashMap<String, Integer> score;
 	
 	public static void main(String[] args) {
 		
@@ -54,13 +58,22 @@ public class ConnectServer {
 					
 					if(message.get("commandType").equals("loginSuccess")){
 						login="loginSuccess";
+						
 						String[] usernames1=((String) message.get("users")).split(",");
+						for(int i=0;i<usernames1.length;i++)
+						{
+							if(!usernames1[i].equals(username))
+							{
+								allUsersExceptSelf.add(usernames1[i]);
+							}
+						}
+						String[] allUsersExceptSelf1 = allUsersExceptSelf.toArray(new String[allUsersExceptSelf.size()]); 
 						List listusername=Arrays.asList(usernames1);
 						usernames=new ArrayList(listusername);
 						//MainWindow mw = new MainWindow();
 						Thread t = new Thread(() -> LoginWindow.up());
 						t.start();
-						MainWindow.avaliableUserList.setListData(usernames1);
+						MainWindow.avaliableUserList.setListData(allUsersExceptSelf1);
 						
 						while(true){
 							
@@ -80,6 +93,7 @@ public class ConnectServer {
 								System.out.println(reply1);
 								String[] message2=reply1.split(";",-1);
 								JSONObject operationMessage = (JSONObject)parser.parse(message2[0]);
+								
 								decidedReplyType(operationMessage);
 								
 							}
@@ -87,6 +101,7 @@ public class ConnectServer {
 							
 
 						}
+						
 						
 					}
 					if(message.get("commandType").equals("loginFail"))
@@ -105,21 +120,45 @@ public class ConnectServer {
 		} 
 		catch (UnknownHostException e) {
 			//return "ip address mistake";
+			LoginWindow.tips.setText("ip address mistake");
+			System.out.println("111111111111");
 		} 
 		catch (IOException e) {
 			//return "<html><p>Search word fail,server may not launched or Network connection is interrupted or port number is wrong</p></html>";
+			LoginWindow.tips.setText("<html><p>Search word fail,server may not launched or Network connection is interrupted or port number is wrong</p></html>");
+			System.out.println("222222222222");
 		}
 
 	}
 	
 	public static void decidedReplyType(JSONObject operationMessage){
 		
-		if(operationMessage.get("commandType").equals("loginSuccess")){
+		if(operationMessage.get("commandType").equals("usersUpdated")){
+			String users=(String) operationMessage.get("users");
+			String[] usernames1;
+			if(users.contains(","))
+			{
+				usernames1=((String) operationMessage.get("users")).split(",");
+			}
+			else
+			{
+				usernames1=new String[]{users};
+			}
+				
+				for(int i=0;i<usernames1.length;i++)
+				{
+					if(!usernames1[i].equals(username))
+					{
+						allUsersExceptSelf.add(usernames1[i]);
+					}
+				}
+				String[] allUsersExceptSelf1 = allUsersExceptSelf.toArray(new String[allUsersExceptSelf.size()]);
+				List listusername=Arrays.asList(usernames1);
+				usernames=new ArrayList(listusername);
+				MainWindow.avaliableUserList.setListData(allUsersExceptSelf1);
+				allUsersExceptSelf.clear();
+
 			
-			String[] usernames1=((String) operationMessage.get("users")).split(",");
-			List listusername=Arrays.asList(usernames1);
-			usernames=new ArrayList(listusername);
-			MainWindow.avaliableUserList.setListData(usernames1);
 		}
 		
 		if(operationMessage.get("commandType").equals("invitation"))
@@ -134,22 +173,54 @@ public class ConnectServer {
 		{
 			if(operationMessage.get("reply").equals("yes")){
 				//进入游戏界面
-				System.out.println("进入游戏界面");
+				gameID=Integer.parseInt(operationMessage.get("gameID").toString());
 				allPlayers=((String) operationMessage.get("players")).split(",");
 				game=new Game(gameID,allPlayers);
+				
+				System.out.println("进入游戏界面");
+				HashMap<String, Integer> scores=game.getNewstGameState().getScores();
+				score=scores;
+				ScrabbleView sv = new ScrabbleView(); 
+				ScrabbleView.result=scores;
+				ScrabbleView.updateScore();
+				
+				
+
 				String nextPlayer=game.getNewstGameState().getNextTurn();
+				ScrabbleView.userTurnDisplayLabel.setText(nextPlayer+"'s turn");
+				
 				if(username.equals(nextPlayer))
 				{
 					// 能执行
+					ScrabbleView.allButtonEnables(true);
+					
 				}
 				else
 				{
 					// 不能做
 				}
-				ScrabbleView sv = new ScrabbleView(); 
+				
 			}
 			if(operationMessage.get("reply").equals("no")){
 				//游戏开始失败（无人参加游戏，只有创建游戏者才会收到no）
+				MainWindow.frame.setVisible(true);
+
+				
+				String[] invitedUser =new String[0];
+				MainWindow.invitedUserList.setListData(invitedUser);
+				allUsersExceptSelf.clear();
+				invitedUsers.clear();
+				String[] usernames2=new String[usernames.size()-1];
+				
+				for(int i=0;i<usernames.size();i++)
+				{
+					if(!usernames.get(i).equals(username))
+					{
+						usernames2[i]=usernames.get(i);
+					}
+				}
+				
+				MainWindow.avaliableUserList.setListData(usernames2);
 			}
 		}
 		else if(operationMessage.get("commandType").equals("updateGameState"))
@@ -184,30 +255,164 @@ public class ConnectServer {
 			}
 			else
 			{
-				ChangeScrabbleView.user=(String) operationMessage.get("users");
+				ChangeScrabbleView.user=operationMessage.get("users").toString();
 				operation=new Operation(ChangeScrabbleView.user);
 				game.nextState(operation);
+				if(game.isFinish())
+				{
+					//游戏结束
+				}
+				else
+				{
+					//下一个操作
+					String nextPlayer=game.getNewstGameState().getNextTurn();
+					ScrabbleView.userTurnDisplayLabel.setText(nextPlayer+"'s turn");
+					if(username.equals(nextPlayer))
+					{
+						ScrabbleView.allButtonEnables(true);
+					}
+					
+					//获取最新状态下的表格
+					char[][] grid=game.getNewstGameState().getGrid();
+					for(int x=1;x<21;x++)
+					{
+						for(int y=1;y<21;y++)
+						{
+							if(grid[x-1][y-1]=='\0')
+								ScrabbleView.record[x][y]="";
+							else
+								ScrabbleView.record[x][y]= String.valueOf(grid[x-1][y-1]);
+						}
+					}
+					ScrabbleView.updateScrabble();
+					
+				}
 			}
 			
 		}
 		else if(operationMessage.get("commandType").equals("vote"))
 		{
 			// 投票开始,投票按钮变成可选状态
-			
+			System.out.println("投票开始,投票按钮变成可选状态");
+			ScrabbleView.userTurnDisplayLabel.setText("Please Vote");
+			ScrabbleView.yesBtn.setEnabled(true);
+			ScrabbleView.noBtn.setEnabled(true);
 		}
 		// 接收投票结果
 		else if(operationMessage.get("commandType").equals("updateGameStateReply"))
 		{
-			//投票通过，更新GUI分数
+			//投票通过，更新GUI分数,下一个用户可以进行操作
+			System.out.println("投票通过，更新GUI分数,下一个用户可以进行操作");
 			if((boolean) operationMessage.get("result")){
 				HashMap<String, Integer> scores=game.getNewstGameState().getScores();
+				score=scores;
+				ScrabbleView.result=scores;
+				String nextPlayer=game.getNewstGameState().getNextTurn();
+				ScrabbleView.userTurnDisplayLabel.setText(nextPlayer+"'s turn");
+				if(username.equals(nextPlayer))
+				{
+					ScrabbleView.allButtonEnables(true);
+				}
+				//更改分数
+				ScrabbleView.updateScore();
+				
+				//获取最新状态下的表格
+				char[][] grid=game.getNewstGameState().getGrid();
+				for(int x=1;x<21;x++)
+				{
+					for(int y=1;y<21;y++)
+					{
+						if(grid[x-1][y-1]=='\0')
+							ScrabbleView.record[x][y]="";
+						else
+							ScrabbleView.record[x][y]= String.valueOf(grid[x-1][y-1]);
+					}
+				}
+				ScrabbleView.updateScrabble();
 				
 			}
-			//投票未通过，回到上一个gamestate,更新GUI
+			//投票未通过，回到上一个gamestate,更新GUI，下一个用户可以开始操作
 			else{
+				
 				game.returnToLastGameState();
 				char[][] grid=game.getNewstGameState().getGrid();
+				for(int x=1;x<21;x++)
+				{
+					for(int y=1;y<21;y++)
+					{
+						if(grid[x-1][y-1]=='\0')
+							ScrabbleView.record[x][y]="";
+						else
+							ScrabbleView.record[x][y]= String.valueOf(grid[x-1][y-1]);
+					}
+				}
+				String nextPlayer=game.getNewstGameState().getNextTurn();
+				ScrabbleView.userTurnDisplayLabel.setText(nextPlayer+"'s turn");
+				if(username.equals(nextPlayer))
+				{
+					ScrabbleView.allButtonEnables(true);
+				}
+				ScrabbleView.updateScrabble();
+				
 			}
+		}
+		//结束游戏,所以按钮都不可用，并且显示游戏结果
+		else if(operationMessage.get("commandType").equals("terminateGame"))
+		{
+			ScrabbleView.yesBtn.setEnabled(false);
+			ScrabbleView.noBtn.setEnabled(false);
+			ScrabbleView.allButtonEnables(false);
+			
+			Iterator<Entry<String, Integer>> iterator = score.entrySet().iterator();
+			String winner=null;
+			Integer highestScore=-1;
+			while (iterator.hasNext()) 
+			{
+				Entry<String, Integer> entry = iterator.next();
+				String user = entry.getKey();
+				Integer score = entry.getValue();
+				System.out.print("user: "+user+"  score: "+score);
+				//highestScore=score;
+				if(score>highestScore)
+				{
+					highestScore=score;
+					winner=user+",";
+				}
+				
+			}
+			iterator = score.entrySet().iterator();
+			while (iterator.hasNext()) 
+			{
+				Entry<String, Integer> entry = iterator.next();
+				String user = entry.getKey();
+				Integer score = entry.getValue();
+				//highestScore=score;
+				if(score==highestScore)
+				{
+					highestScore=score;
+					if(!winner.contains(user))
+					{
+						winner=winner+user+",";
+					}
+				}
+			}
+			winner = winner.substring(0,winner.length() - 1);
+			ScrabbleView.userTurnDisplayLabel.setText("Winner is "+winner+" and highest score is "+highestScore);
+			
+			
+			
+		}
+		else if(operationMessage.get("commandType").equals("alive"))
+		{
+			AddTasks.returnAlive();
+		}
+		
+		else if(operationMessage.get("commandType").equals("refuse"))
+		{
+			String reason=MainWindow.inviteStatusTextArea.getText();
+			reason=reason+operationMessage.get("reason").toString();
+			MainWindow.inviteStatusTextArea.setText(reason);
+			
 		}
 		
 		

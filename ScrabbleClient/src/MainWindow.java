@@ -12,12 +12,15 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextField;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+
 import java.awt.Color;
 
 public class MainWindow {
 	static JList avaliableUserList = new JList();
 	static JList invitedUserList = new JList();
-	 private JFrame frame;
+	 static JFrame frame;
+	 static	JTextArea inviteStatusTextArea = new JTextArea();
 	 
 
 	/**
@@ -43,8 +46,8 @@ public class MainWindow {
 	 */
 	public MainWindow() {
 		frame = new JFrame("Main window");
-		frame.setBounds(100, 100, 450, 300);
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frame.setBounds(100, 100, 450, 500);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
 		JLabel ScrabbleLabel = new JLabel("Scrabble Game");
@@ -76,6 +79,13 @@ public class MainWindow {
 		JButton addUserButton = new JButton("+");
 		addUserButton.setBounds(203, 116, 37, 29);
 		frame.getContentPane().add(addUserButton);
+		
+		JLabel statusLabel = new JLabel("Status");
+		statusLabel.setBounds(22, 256, 61, 16);
+		frame.getContentPane().add(statusLabel);
+		
+		inviteStatusTextArea.setBounds(23, 300, 390, 137);
+		frame.getContentPane().add(inviteStatusTextArea);
 		frame.setVisible(true);
 		
 		
@@ -86,15 +96,15 @@ public class MainWindow {
 				String chosenName=(String) avaliableUserList.getSelectedValue();
 				if(chosenName!=null)
 				{
-					for(int i=0;i<ConnectServer.usernames.size();i++)
+					for(int i=0;i<ConnectServer.allUsersExceptSelf.size();i++)
 					{
-						if(ConnectServer.usernames.get(i)==chosenName)
+						if(ConnectServer.allUsersExceptSelf.get(i)==chosenName)
 						{
-							ConnectServer.usernames.remove(i);
+							ConnectServer.allUsersExceptSelf.remove(i);
 							i--;
 						}
 					}
-					String[] changedUsernames = ConnectServer.usernames.toArray(new String[ConnectServer.usernames.size()]);
+					String[] changedUsernames = ConnectServer.allUsersExceptSelf.toArray(new String[ConnectServer.allUsersExceptSelf.size()]);
 					avaliableUserList.setListData(changedUsernames);
 					
 					
@@ -134,8 +144,8 @@ public class MainWindow {
 			if(!ConnectServer.invitedUsers.isEmpty()){
 				String[] invitedUsers1 = ConnectServer.invitedUsers.toArray(new String[ConnectServer.invitedUsers.size()]);
 				ConnectServer.tasks.add(JsonParser.generateJsonCreateGame(invitedUsers1,ConnectServer.username));
-			
-	            //ScrabbleView sv = new ScrabbleView(); 
+			    frame.setVisible(false);
+	           
 			}
 			else{
 				

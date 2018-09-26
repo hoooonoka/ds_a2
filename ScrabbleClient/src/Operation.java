@@ -18,6 +18,7 @@ public class Operation
 	public Operation(String user)
 	{
 		this.isPass=true;
+		this.user=user;
 	}
 	
 	public char getLetter()

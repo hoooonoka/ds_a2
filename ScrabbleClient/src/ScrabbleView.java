@@ -1,3 +1,4 @@
+
 import java.awt.Color;
 import java.awt.EventQueue;
 
@@ -10,7 +11,6 @@ import java.awt.GridBagLayout;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.border.Border;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.text.Document;
 
 import java.awt.GridBagConstraints;
@@ -18,34 +18,45 @@ import java.awt.Insets;
 import java.awt.GridLayout;
 import javax.swing.JTable;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+
 import java.awt.FlowLayout;
 import java.awt.Font;
 
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.awt.event.ActionEvent;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import javax.swing.JScrollPane;
+import javax.swing.SwingConstants;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class ScrabbleView {
 
-	private JFrame frame;
+	private static JFrame frame;
 	private String regx ="[A-Z]{1}";
-	private String[][] record = new String[21][21];	
-	
+	public static String[][] record = new String[21][21];
+	static JTextField[][] scrabbleTextField =new JTextField[21][21];
+	static JButton yesBtn = new JButton("V");
+	static JButton noBtn = new JButton("X");
+	static JButton changeBtn = new JButton("Change");
+	static JButton passBtn = new JButton("Pass");
+	static HashMap<String, Integer> result =new HashMap<String, Integer>();
+	static JLabel userTurnDisplayLabel = new JLabel("Display user name ");
+	public static JList scorelist = new JList();
 
 	/**
 	 * Launch the application.
@@ -75,60 +86,72 @@ public class ScrabbleView {
 	 */
 	private void initialize() 
 	{
+//		result.put("dogshng", 11);
+//		result.put("wuzhouhui", 22);
 		frame = new JFrame();
 		frame.setBounds(100, 100, 950, 800);
 		frame.getContentPane().setLayout(null);
 		frame.setTitle("Scrabble Game");
 		
-		//Menu part
 		JMenuBar menubar;
 	    JMenu gameMenu; 
 	    JMenuItem quitItem;
 	    menubar = new JMenuBar();
         gameMenu = new JMenu("Menu");
-        quitItem = new JMenuItem("Quit");    
+        quitItem = new JMenuItem("Quit current game");    
         quitItem.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
-        		System.exit(0);
+        		int n =JOptionPane.showConfirmDialog(null,"Do you want to quit current game?", null,JOptionPane.YES_NO_CANCEL_OPTION);
+        		if(n ==JOptionPane.YES_OPTION)
+        		{
+        			frame.dispose();
+        			MainWindow mv = new  MainWindow();
+        			AddTasks.sendCloseCurrentGameMessage();
+        		}
+        		else if(n==JOptionPane.NO_OPTION){}
+        		
         	}
         });
         gameMenu.add(quitItem);       
         menubar.add(gameMenu);
         frame.setJMenuBar(menubar);
         
-        //user turn diaplay
-        JLabel turnLabel = new JLabel("Turn:");
+        //user turn display
+        JLabel turnLabel = new JLabel("User Turn:");
         turnLabel.setForeground(Color.red);
-		 turnLabel.setBounds(21, 12, 103, 31);
+        turnLabel.setFont(new Font("Arial",Font.BOLD,18));
+		turnLabel.setBounds(21, 12, 103, 31);
 		frame.getContentPane().add(turnLabel);
+		userTurnDisplayLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		
-		JLabel userTurnDisplayLabel = new JLabel("Display user name here");
-		userTurnDisplayLabel.setForeground(Color.red);
-		userTurnDisplayLabel.setBounds(31, 55, 109, 16);
+		
+		userTurnDisplayLabel.setForeground(Color.black);
+		userTurnDisplayLabel.setFont(new Font("Arial",Font.BOLD,18));
+		userTurnDisplayLabel.setBounds(136, 19, 560, 16);
 		frame.getContentPane().add(userTurnDisplayLabel);
 		
-        //Player name and score table part
-        String[] title = {"USER NAME", "GAME SCORE"};
-		Object[][] playerInfo = {
-		            { "王鹏", new Integer(91)},
-		            { "朱学莲", new Integer(82)},
-		            { "梅婷", new Integer(47), },
-		            { "赵龙", new Integer(61),  },
-		            { "李兵", new Integer(90) }, };
-		 
-		JTable table = new JTable(playerInfo, title);
+		JScrollPane scoreScrollPane = new JScrollPane();
+		 scoreScrollPane.setBounds(690, 39, 213, 64);
+		frame.getContentPane().add(scoreScrollPane);
+		scoreScrollPane.setViewportView(scorelist);
+		//test
+
 		
-		JScrollPane resultscrollPane = new JScrollPane(table);
-		resultscrollPane.setBounds(152, 18, 411, 66);
-		frame.getContentPane().add(resultscrollPane);
+      //Player name and score table part
 		
-		//Game board part
 		JPanel panel = new JPanel();
 		panel.setBounds(6, 100, 650, 650);
 		frame.getContentPane().add(panel);
 		panel.setLayout(new GridLayout(21,21));
 		
-		JTextField[][] scrabbleTextField =new JTextField[21][21];
+		for(int x=0;x<21;x++)
+		{
+			for(int y=0;y<21;y++)
+			{
+				record[x][y]="";
+			}
+		}
+
 		for(int i=0;i<21;i++)
 		{
 			for(int j=0;j<21;j++)
@@ -138,7 +161,10 @@ public class ScrabbleView {
 				scrabbleTextField[i][j].setHorizontalAlignment(JTextField.CENTER);
 				scrabbleTextField[i][j].setBorder(BorderFactory.createLineBorder(Color.black));
 				scrabbleTextField[i][j].setFont(new Font("Arial",Font.BOLD,18));		 
-				panel.add(scrabbleTextField[i][j]);				
+				panel.add(scrabbleTextField[i][j]);	
+							
+				scrabbleTextField[i][j].setText(record[i][j]);
+				scrabbleTextField[i][j].setEnabled(false);
 			}
 			
 		}		
@@ -257,55 +283,70 @@ public class ScrabbleView {
 			  }
 		  }
 		
-		//Vote part
 		JLabel voteLabel = new JLabel("Your Vote");
 		voteLabel.setForeground(Color.RED);
 		voteLabel.setBounds(751, 207, 107, 16);
 		voteLabel.setFont(new Font("Arial",Font.BOLD,18));
 		frame.getContentPane().add(voteLabel);
 		
-		JButton yesBtn = new JButton("V");
+
 		yesBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+				AddTasks.YesVoteResult();
+				yesBtn.setEnabled(false);
+				noBtn.setEnabled(false);
 			}
 		});
 		yesBtn.setBounds(690, 242, 63, 50);
+		yesBtn.setEnabled(false);
 		frame.getContentPane().add(yesBtn);
 		
-        JButton noBtn = new JButton("X");
+
         noBtn.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
+        		AddTasks.NoVoteResult();
+        		yesBtn.setEnabled(false);
+        		noBtn.setEnabled(false);
         	}
         });
 		noBtn.setBounds(817, 242, 61, 50);
+		noBtn.setEnabled(false);
 		frame.getContentPane().add(noBtn);
 		
-		//Choice part
 		JLabel decisionLabel = new JLabel("Your choice");
 		decisionLabel.setForeground(Color.RED);
-		decisionLabel.setBounds(736, 100, 137, 20);
+		decisionLabel.setBounds(741, 115, 137, 20);
 		decisionLabel.setFont(new Font("Arial",Font.BOLD,18));
 		frame.getContentPane().add(decisionLabel);
 		
-		JButton changeBtn = new JButton("Change");
+
 		changeBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
+				Boolean check=checkupdated(scrabbleTextField);
+				if(check)
+				{
+				allButtonEnables(false);
+				}
+				
 			}
 		});
 		changeBtn.setBounds(668, 147, 117, 42);
+		changeBtn.setEnabled(false);
 		frame.getContentPane().add(changeBtn);
 		
-		JButton passBtn = new JButton("Pass");
+
 		passBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				allButtonEnables(false);
+				updateScrabble();
+				AddTasks.pass();
 			}
 		});
 		passBtn.setBounds(802, 149, 117, 39);
+		passBtn.setEnabled(false);
 		frame.getContentPane().add(passBtn);
 		
-		
-		//Chat part
 		JTextArea chatTextArea = new JTextArea();
 		chatTextArea.setBounds(668, 377, 251, 137);
 		chatTextArea.setEditable(false);
@@ -354,9 +395,16 @@ public class ScrabbleView {
 		chatErrorLable.setForeground(Color.RED);
 		chatErrorLable.setBounds(668, 661, 276, 42);
 		frame.getContentPane().add(chatErrorLable);		
+		frame.setVisible(true);
 		
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setVisible(true);	
+		JLabel userScoreLabel = new JLabel("Score");
+		userScoreLabel.setForeground(Color.RED);
+		userScoreLabel.setFont(new Font("Arial",Font.BOLD,18));
+		userScoreLabel.setBounds(765, 12, 61, 16);
+		frame.getContentPane().add(userScoreLabel);
+		
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setVisible(true);
 	}
 	
 	public void updateBoard(JTextField [][] textfield)
@@ -371,36 +419,96 @@ public class ScrabbleView {
 		
 	}
 	
-	public void checkupdated(JTextField [][] textfield)
+	public boolean checkupdated(JTextField [][] textfield)
 	{
-		//int time=0;
-		for(int i=0; i<21;i++)
+		int time=0;
+		int xText = 0;
+		int yText = 0;
+		String changedText = null;
+		for(int i=1; i<21;i++)
 		{
-			for(int j=0;j<21;j++)
+			for(int j=1;j<21;j++)
            {
-              if(record [i][j] != textfield[i][j].getText())
+              if(!record [i][j].equals(textfield[i][j].getText()))
               {
-            	  //time +=1;
-            	  int xText=i;
-            	  int yText =j;
-            	  String changedText = textfield[i][j].getText();
+            	  xText=j-1;
+            	  yText =i-1;
+            	  changedText = textfield[i][j].getText();
+            	  time+=1;
+            	 // System.out.print(record[i][j]+"-----"+textfield[i][j].getText());
+            	  //System.out.println(changedText.toCharArray()[0]);
             	  
               }
               
            }
 		}
+		if(time==1){
+			AddTasks.addLetter(changedText.toCharArray()[0], xText, yText);
+			return true;
+		}
+		else if(time==0)
+		{
+			JOptionPane.showMessageDialog(null, "If you do not want to add a letter, please press Pass button",null,JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		else
+		{
+			JOptionPane.showMessageDialog(null, "You can only add one letter",null,JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+	}
+	public static void updateScrabble()
+	{
+		for(int i=1;i<21;i++)
+		{
+			for(int j=1;j<21;j++)
+			{
+				scrabbleTextField[i][j].setText(record[i][j]);
+				//System.out.println(scrabbleTextField[i][j].getText());
+				if(!record[i][j].equals(""))
+				{
+					scrabbleTextField[i][j].setEnabled(false);
+				}
+				
+			}
+		}
+	}
+	public static void allButtonEnables(boolean enable)
+	{
+		changeBtn.setEnabled(enable);
+		passBtn.setEnabled(enable);
+		for(int i=0;i<21;i++)
+		{
+			for(int j=0;j<21;j++)
+			{
+				scrabbleTextField[i][j].setEnabled(enable);
+			}
+			
+		}
 	}
 	
-	public static Object[][] displayResult(Map<String, Integer> result)
+	
+	
+	public static void updateScore()
 	{
-		int index= 0;
-		Object[][] obj =new Object[result.size()][2];
+
+		String[] temp = displayResult(result);
+		scorelist.setListData(temp);
+	}
+	
+	public static String[] displayResult( Map<String, Integer> result)
+	{
+        int contentSize = result.size();
+		int index =0;
+		String[] temp = new String[contentSize];
     	for (Map.Entry<String, Integer> entry : result.entrySet())
     	{ 
-    		obj[index][0]= entry.getKey();
-    		obj[index][1]= entry.getValue();
-    		index++;
-    	}   	
-		return obj;      
+    		 temp[index]=entry.getKey()+" : "+entry.getValue();
+   		     index++;
+    		
+    	}
+		return temp;  	
+		
    }
+
 }
