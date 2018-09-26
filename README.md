@@ -1,25 +1,32 @@
 # Assignment 2
 
 ## Team Information
+
 - Zhouhui Wu
 - Xinze Li
 - Ziling He
 - Dongsheng Xie
 
 ## Role
+
 - Zhouhui Wu :
-  - Main functions for server part
+  - Server: server architecture and function
+  - Game
+  - Protocol: protocol and message format design
   
 - Xinze Li :
-  - Main functions for client part
+  - Client
   
 - Dongsheng Xie :
-  - GUI and message passing protocol
-  - message passing parts in server and client
+  - GUI
+  - Interface
   
 - Ziling He:
-  - Main functions for server part
+  - Server: server function
+  - Game
   
 ## Current Progress
-Server functions completed
-Waiting for Client functions and GUI
+
+Almost finished
+
+Need testing
