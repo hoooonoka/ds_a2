@@ -130,7 +130,7 @@ public class GameState
 				break;
 		}
 		// sum up
-		int score=scores.get(operation.getUser())+verticalScore+horizontalScore;
+		int score=scores.get(operation.getUser())+verticalScore+horizontalScore+1;
 		scores.remove(operation.getUser());
 		scores.put(operation.getUser(), score);
 	}

@@ -215,6 +215,7 @@ public class JsonParser
 	}
 	
 	// terminate game message: send from server to client
+	// also can be sent from client to server
 	public static JSONObject generateJsonTerminateGame( int gameID, String user)
 	{
 		JSONObject newCommand = new JSONObject();
@@ -245,5 +246,21 @@ public class JsonParser
 			return null;
 		String[] words=longString.split(",");
 		return words;
+	}
+	
+	// check alive: server to client
+	public static JSONObject generateJsonAlive()
+	{
+		JSONObject newCommand = new JSONObject();
+		newCommand.put("commandType", "alive");
+		return newCommand;
+	}
+	
+	// check alive reply: client to server
+	public static JSONObject generateJsonAliveReply()
+	{
+		JSONObject newCommand = new JSONObject();
+		newCommand.put("commandType", "aliveReply");
+		return newCommand;
 	}
 }

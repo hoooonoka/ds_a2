@@ -66,15 +66,30 @@ public class Game
 	{
 		GameState state=this.states.get(this.states.size()-1);
 		GameState newState=new GameState(state);
-		newState.tryOperate(operation);
-		newState.changeNextTurn();
-		operations.add(operation);
-		states.add(newState);
-		if(this.isFinish())
+		if(operation.getPass())
 		{
-			// end game
-			this.end=true;
+			newState.changeNextTurn();
+			operations.add(operation);
+			states.add(newState);
+			if(this.isFinish())
+			{
+				// end game
+				this.end=true;
+			}
 		}
+		else
+		{
+			newState.tryOperate(operation);
+			newState.changeNextTurn();
+			operations.add(operation);
+			states.add(newState);
+			if(this.isFinish())
+			{
+				// end game
+				this.end=true;
+			}
+		}
+		
 	}
 	
 //	public void endGame()
@@ -88,7 +103,7 @@ public class Game
 			return false;
 		for(int i=0;i<users.size();i++)
 		{
-			if(operations.get(operations.size()-i-1).getPass())
+			if(!operations.get(operations.size()-i-1).getPass())
 				return false;
 		}
 		return true;
