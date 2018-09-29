@@ -13,6 +13,8 @@ import javax.swing.JTextPane;
 import javax.swing.border.Border;
 import javax.swing.text.Document;
 
+import org.json.simple.JSONObject;
+
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.GridLayout;
@@ -56,6 +58,7 @@ public class ScrabbleView {
 	static JButton passBtn = new JButton("Pass");
 	static HashMap<String, Integer> result =new HashMap<String, Integer>();
 	static JLabel userTurnDisplayLabel = new JLabel("Display user name ");
+	static JTextArea chatTextArea;
 	public static JList scorelist = new JList();
 
 	/**
@@ -347,7 +350,7 @@ public class ScrabbleView {
 		passBtn.setEnabled(false);
 		frame.getContentPane().add(passBtn);
 		
-		JTextArea chatTextArea = new JTextArea();
+		chatTextArea = new JTextArea();
 		chatTextArea.setBounds(668, 377, 251, 137);
 		chatTextArea.setEditable(false);
 		frame.getContentPane().add(chatTextArea);
@@ -360,6 +363,10 @@ public class ScrabbleView {
 		sendBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String msg = myMsgTextArea.getText();
+				String message=ConnectServer.username+":"+msg;
+				JSONObject task=JsonParser.generateJsonUserMessage(ConnectServer.gameID,ConnectServer.username,message);
+				ConnectServer.tasks.add(task);
+				myMsgTextArea.setText(null);
 			}
 		});
 		sendBtn.setBounds(678, 616, 107, 39);

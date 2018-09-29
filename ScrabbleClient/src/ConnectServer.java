@@ -144,21 +144,16 @@ public class ConnectServer {
 			{
 				usernames1=new String[]{users};
 			}
-				
-				for(int i=0;i<usernames1.length;i++)
+			allUsersExceptSelf.clear();
+			for(int i=0;i<usernames1.length;i++)
+			{
+				if(!usernames1[i].equals(username))
 				{
-					if(!usernames1[i].equals(username))
-					{
-						allUsersExceptSelf.add(usernames1[i]);
-					}
+					allUsersExceptSelf.add(usernames1[i]);
 				}
-				String[] allUsersExceptSelf1 = allUsersExceptSelf.toArray(new String[allUsersExceptSelf.size()]);
-				List listusername=Arrays.asList(usernames1);
-				usernames=new ArrayList(listusername);
-				MainWindow.avaliableUserList.setListData(allUsersExceptSelf1);
-				allUsersExceptSelf.clear();
-
-			
+			}
+			String[] allUsersExceptSelf1 = allUsersExceptSelf.toArray(new String[allUsersExceptSelf.size()]);
+			MainWindow.avaliableUserList.setListData(allUsersExceptSelf1);
 		}
 		
 		if(operationMessage.get("commandType").equals("invitation"))
@@ -208,19 +203,14 @@ public class ConnectServer {
 				
 				String[] invitedUser =new String[0];
 				MainWindow.invitedUserList.setListData(invitedUser);
-				allUsersExceptSelf.clear();
 				invitedUsers.clear();
-				String[] usernames2=new String[usernames.size()-1];
+				String[] names=new String[allUsersExceptSelf.size()];
 				
-				for(int i=0;i<usernames.size();i++)
+				for(int i=0;i<allUsersExceptSelf.size();i++)
 				{
-					if(!usernames.get(i).equals(username))
-					{
-						usernames2[i]=usernames.get(i);
-					}
+					names[i]=allUsersExceptSelf.get(i);
 				}
-				
-				MainWindow.avaliableUserList.setListData(usernames2);
+				MainWindow.avaliableUserList.setListData(names);
 			}
 		}
 		else if(operationMessage.get("commandType").equals("updateGameState"))
@@ -412,6 +402,15 @@ public class ConnectServer {
 			String reason=MainWindow.inviteStatusTextArea.getText();
 			reason=reason+operationMessage.get("reason").toString();
 			MainWindow.inviteStatusTextArea.setText(reason);
+			
+		}
+		else if(operationMessage.get("commandType").equals("message"))
+		{
+			String message=operationMessage.get("message").toString();
+			String previousMessage=ScrabbleView.chatTextArea.getText();
+			String fullMessage=previousMessage+message+"\n";
+			ScrabbleView.chatTextArea.setText(fullMessage);
+
 			
 		}
 		

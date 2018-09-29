@@ -96,17 +96,23 @@ public class MainWindow {
 				String chosenName=(String) avaliableUserList.getSelectedValue();
 				if(chosenName!=null)
 				{
-					for(int i=0;i<ConnectServer.allUsersExceptSelf.size();i++)
+//					for(int i=0;i<ConnectServer.allUsersExceptSelf.size();i++)
+//					{
+//						if(ConnectServer.allUsersExceptSelf.get(i).equals(chosenName))
+//						{
+//							ConnectServer.allUsersExceptSelf.remove(i);
+//							i--;
+//						}
+//					}
+//					String[] changedUsernames = ConnectServer.allUsersExceptSelf.toArray(new String[ConnectServer.allUsersExceptSelf.size()]);
+//					avaliableUserList.setListData(changedUsernames);
+					for(int i=0;i<ConnectServer.invitedUsers.size();i++)
 					{
-						if(ConnectServer.allUsersExceptSelf.get(i)==chosenName)
+						if(chosenName.equals(ConnectServer.invitedUsers.get(i)))
 						{
-							ConnectServer.allUsersExceptSelf.remove(i);
-							i--;
+							return;
 						}
 					}
-					String[] changedUsernames = ConnectServer.allUsersExceptSelf.toArray(new String[ConnectServer.allUsersExceptSelf.size()]);
-					avaliableUserList.setListData(changedUsernames);
-					
 					
 					ConnectServer.invitedUsers.add(chosenName);
 					String[] invitedUsers1 = ConnectServer.invitedUsers.toArray(new String[ConnectServer.invitedUsers.size()]);
@@ -144,6 +150,8 @@ public class MainWindow {
 			if(!ConnectServer.invitedUsers.isEmpty()){
 				String[] invitedUsers1 = ConnectServer.invitedUsers.toArray(new String[ConnectServer.invitedUsers.size()]);
 				ConnectServer.tasks.add(JsonParser.generateJsonCreateGame(invitedUsers1,ConnectServer.username));
+				ConnectServer.invitedUsers.clear();
+				MainWindow.invitedUserList.setListData(new String[0]);
 			    frame.setVisible(false);
 	           
 			}
