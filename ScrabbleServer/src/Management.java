@@ -67,9 +67,16 @@ public class Management
 		List<User> targetUsers=new ArrayList<User>();
 		for(int i=0;i<names.length;i++)
 		{
-			if(users.containsKey(names[i]))
+			try
 			{
-				targetUsers.add(users.get(names[i]));
+				if(users.containsKey(names[i]))
+				{
+					targetUsers.add(users.get(names[i]));
+				}
+			}
+			catch(NullPointerException e)
+			{
+				continue;
 			}
 			
 		}
@@ -156,9 +163,15 @@ public class Management
 					ServerForm.updateLog("New client "+username+" connected\n");
 					User user=new User(clientSocket.getLocalAddress().getHostAddress(),username,false,5555);
 					users.put(username, user);
-					if(requests.containsKey(username))
+					try
 					{
-						requests.remove(username);
+						if(requests.containsKey(username))
+						{
+							requests.remove(username);
+						}
+					}
+					catch(NullPointerException e)
+					{
 					}
 					
 					// unique username
@@ -174,15 +187,23 @@ public class Management
 				    	if(!usernames[i].equals(username))
 				    	{
 				    		JSONObject newTask=JsonParser.generateJsonUsersUpdated(usernames);
-							if(requests.containsKey(usernames[i]))
+				    		try
+				    		{
+				    			if(requests.containsKey(usernames[i]))
+								{
+									requests.get(usernames[i]).add(newTask);
+								}
+								else
+								{
+									List<JSONObject> sendingTasks=new ArrayList<JSONObject>();
+									sendingTasks.add(newTask);
+									requests.put(usernames[i], sendingTasks);
+								}
+				    		}
+							
+							catch(NullPointerException e)
 							{
-								requests.get(usernames[i]).add(newTask);
-							}
-							else
-							{
-								List<JSONObject> sendingTasks=new ArrayList<JSONObject>();
-								sendingTasks.add(newTask);
-								requests.put(usernames[i], sendingTasks);
+								continue;
 							}
 				    	}
 				    }
@@ -199,13 +220,11 @@ public class Management
 							try 
 							{
 								client.close();
-								users.remove(username);
 								return;
 							}
 							catch (IOException e) 
 							{
 								System.out.println("error occuring when closing listen thread");
-								users.remove(username);
 								return;
 							}
 						}
@@ -236,7 +255,6 @@ public class Management
 					
 					endUp(username);
 					client.close();
-					users.remove(username);
 				}
 				catch (IOException e) 
 				{
@@ -247,11 +265,76 @@ public class Management
 
 	}
 	
+	
 	public synchronized static void endUp(String username)
 	{
 
 		ServerForm.updateLog("Client "+username+" logout\n");
 		System.out.println("connection to "+username+" closed");
+		ServerForm.updateLog("Client "+username+" logout\n");
+		System.out.println("connection to "+username+" closed");
+		User user=users.get(username);
+		if(user.inAGame())
+		{
+			int gameID=user.getCurrentGameID();
+			List<String> players=games.get(gameID).getUsers();
+			for(int i=0;i<players.size();i++)
+			{
+				// send terminate game message to other users
+				if(!players.get(i).equals(username))
+				{
+					JSONObject task=JsonParser.generateJsonTerminateGame(gameID,players.get(i));
+					try
+					{
+						users.get(players.get(i)).outOfGame();
+						if(requests.containsKey(players.get(i)))
+						{
+							requests.get(players.get(i)).add(task);
+						}
+						else
+						{
+							List<JSONObject> sendingTasks=new ArrayList<JSONObject>();
+							sendingTasks.add(task);
+							requests.put(players.get(i), sendingTasks);
+						}
+					}
+					catch(NullPointerException e)
+					{
+						continue;
+					}
+						
+				}
+			}
+		}
+			
+		users.remove(username);
+		String[] usernames=genearteUsernames();
+		for(int i=0;i<usernames.length;i++)
+		{
+		    if(!usernames[i].equals(username))
+		   	{
+		   		JSONObject newTask=JsonParser.generateJsonUsersUpdated(usernames);
+		   		try
+		   		{
+		   			if(requests.containsKey(usernames[i]))
+					{
+						requests.get(usernames[i]).add(newTask);
+					}
+					else
+					{
+						List<JSONObject> sendingTasks=new ArrayList<JSONObject>();
+						sendingTasks.add(newTask);
+						requests.put(usernames[i], sendingTasks);
+					}
+		   		}
+				catch(NullPointerException e)
+				{
+					continue;
+				}
+	    	}
+	    }
+
+		
 	}
 	
 	public synchronized static boolean sendMessage(String username, DataOutputStream output, DataInputStream input, JSONObject command, JSONParser parser, Socket client)
@@ -354,84 +437,46 @@ public class Management
 						// not invitable
 						// reply host
 						JSONObject newTask=JsonParser.generateJsonRefuseInvitation(gameID, inviteUsers.get(i).getUsername(),host,inviteUsers.get(i).getUsername()+" is now in a game and can not be invited");
-						if(requests.containsKey(host))
+						try
 						{
-							requests.get(host).add(newTask);
-						}
-						else
-						{
-							List<JSONObject> sendingTasks=new ArrayList<JSONObject>();
-							sendingTasks.add(newTask);
-							requests.put(host, sendingTasks);
-						}
-						continue;
-					}
-					JSONObject newTask=JsonParser.generateJsonInvitation(gameID, inviteUsers.get(i).getUsername(),host);
-					if(requests.containsKey(inviteUsers.get(i).getUsername()))
-					{
-						requests.get(inviteUsers.get(i).getUsername()).add(newTask);
-					}
-					else
-					{
-						List<JSONObject> sendingTasks=new ArrayList<JSONObject>();
-						sendingTasks.add(newTask);
-						requests.put(inviteUsers.get(i).getUsername(), sendingTasks);
-					}
-				}
-				
-			}
-			else if(command.get("commandType").equals("logout"))
-			{
-				// receive clients' logout information
-				String username=command.get("users").toString();
-				ServerForm.updateLog("Client "+username+" logout\n");
-				User user=users.get(username);
-				if(user.inAGame())
-				{
-					int gameID=user.getCurrentGameID();
-					List<String> players=games.get(gameID).getUsers();
-					for(int i=0;i<players.size();i++)
-					{
-						// send terminate game message to other users
-						if(!players.get(i).equals(username))
-						{
-							JSONObject task=JsonParser.generateJsonTerminateGame(gameID,players.get(i));
-							users.get(players.get(i)).outOfGame();
-							if(requests.containsKey(players.get(i)))
+							if(requests.containsKey(host))
 							{
-								requests.get(players.get(i)).add(task);
+								requests.get(host).add(newTask);
 							}
 							else
 							{
 								List<JSONObject> sendingTasks=new ArrayList<JSONObject>();
-								sendingTasks.add(task);
-								requests.put(players.get(i), sendingTasks);
+								sendingTasks.add(newTask);
+								requests.put(host, sendingTasks);
 							}
-							
+							continue;
 						}
-					}
-				}
-				
-				users.remove(username);
-				String[] usernames=genearteUsernames();
-				for(int i=0;i<usernames.length;i++)
-			    {
-			    	if(!usernames[i].equals(username))
-			    	{
-			    		JSONObject newTask=JsonParser.generateJsonUsersUpdated(usernames);
-						if(requests.containsKey(usernames[i]))
+						catch(NullPointerException e)
 						{
-							requests.get(usernames[i]).add(newTask);
+							continue;
+						}
+						
+					}
+					JSONObject newTask=JsonParser.generateJsonInvitation(gameID, inviteUsers.get(i).getUsername(),host);
+					try
+					{
+						if(requests.containsKey(inviteUsers.get(i).getUsername()))
+						{
+							requests.get(inviteUsers.get(i).getUsername()).add(newTask);
 						}
 						else
 						{
 							List<JSONObject> sendingTasks=new ArrayList<JSONObject>();
 							sendingTasks.add(newTask);
-							requests.put(usernames[i], sendingTasks);
+							requests.put(inviteUsers.get(i).getUsername(), sendingTasks);
 						}
-			    	}
-			    }
-				return false;
+					}
+					catch(NullPointerException e)
+					{
+						continue;
+					}
+					
+				}
 				
 			}
 			else if(command.get("commandType").equals("invitationReply"))
@@ -446,16 +491,23 @@ public class Management
 				if(!accept)
 				{
 					JSONObject task=JsonParser.generateJsonRefuseInvitation(gameID, username, host, username+" refuse your invitation");
-					if(requests.containsKey(host))
+					try
 					{
-						requests.get(host).add(task);
+						if(requests.containsKey(host))
+						{
+							requests.get(host).add(task);
+						}
+						else
+						{
+							List<JSONObject> tasks=new ArrayList<JSONObject>();
+							tasks.add(task);
+							requests.put(host, tasks);
+						}
 					}
-					else
+					catch(NullPointerException e)
 					{
-						List<JSONObject> tasks=new ArrayList<JSONObject>();
-						tasks.add(task);
-						requests.put(host, tasks);
 					}
+					
 				}
 				HashMap<String,Boolean> voteResult;
 				if(reply.containsKey(gameID))
@@ -506,18 +558,26 @@ public class Management
 						// informing guests the new game begins
 						for(int i=0;i<gamePlayer.size();i++)
 						{
-							users.get(gamePlayer.get(i)).inGame(gameID);
-							JSONObject task=JsonParser.generateJsonCreateGameReply(gamePlayer.get(i), gameID, true, playersArray);
-							if(requests.containsKey(gamePlayer.get(i)))
+							try
 							{
-								requests.get(gamePlayer.get(i)).add(task);
+								users.get(gamePlayer.get(i)).inGame(gameID);
+								JSONObject task=JsonParser.generateJsonCreateGameReply(gamePlayer.get(i), gameID, true, playersArray);
+								if(requests.containsKey(gamePlayer.get(i)))
+								{
+									requests.get(gamePlayer.get(i)).add(task);
+								}
+								else
+								{
+									List<JSONObject> tasks=new ArrayList<JSONObject>();
+									tasks.add(task);
+									requests.put(gamePlayer.get(i), tasks);
+								}
 							}
-							else
+							catch(NullPointerException e)
 							{
-								List<JSONObject> tasks=new ArrayList<JSONObject>();
-								tasks.add(task);
-								requests.put(gamePlayer.get(i), tasks);
+								continue;
 							}
+							
 						}
 					}
 					else
@@ -526,16 +586,23 @@ public class Management
 						// informing host creates game fail
 						ServerForm.updateLog("Client "+host+"'s new game rejected: no users accepted invitation\n");
 						JSONObject newTask=JsonParser.generateJsonCreateGameReply(host, gameID, false, playersArray);
-						if(requests.containsKey(host))
+						try
 						{
-							requests.get(host).add(newTask);
+							if(requests.containsKey(host))
+							{
+								requests.get(host).add(newTask);
+							}
+							else
+							{
+								List<JSONObject> sendingTasks=new ArrayList<JSONObject>();
+								sendingTasks.add(newTask);
+								requests.put(host, sendingTasks);
+							}
 						}
-						else
+						catch(NullPointerException e)
 						{
-							List<JSONObject> sendingTasks=new ArrayList<JSONObject>();
-							sendingTasks.add(newTask);
-							requests.put(host, sendingTasks);
 						}
+						
 					}
 					
 				}
@@ -550,16 +617,24 @@ public class Management
 				List<String> players=games.get(gameID).getUsers();
 				for(int i=0;i<players.size();i++)
 				{
-					if(requests.containsKey(players.get(i)))
+					try
 					{
-						requests.get(players.get(i)).add(task);
+						if(requests.containsKey(players.get(i)))
+						{
+							requests.get(players.get(i)).add(task);
+						}
+						else
+						{
+							List<JSONObject> tasks=new ArrayList<JSONObject>();
+							tasks.add(task);
+							requests.put(players.get(i), tasks);
+						}
 					}
-					else
+					catch(NullPointerException e)
 					{
-						List<JSONObject> tasks=new ArrayList<JSONObject>();
-						tasks.add(task);
-						requests.put(players.get(i), tasks);
+						continue;
 					}
+					
 				}
 				
 			}
@@ -592,17 +667,25 @@ public class Management
 					for(int i=0;i<players.size();i++)
 					{
 						JSONObject newTask=JsonParser.generateJsonTerminateGame(gameID, players.get(i));
-						users.get(players.get(i)).outOfGame();
-						if(requests.containsKey(players.get(i)))
+						try
 						{
-							requests.get(players.get(i)).add(newTask);
+							users.get(players.get(i)).outOfGame();
+							if(requests.containsKey(players.get(i)))
+							{
+								requests.get(players.get(i)).add(newTask);
+							}
+							else
+							{
+								List<JSONObject> tasks=new ArrayList<JSONObject>();
+								tasks.add(newTask);
+								requests.put(players.get(i), tasks);
+							}
 						}
-						else
+						catch(NullPointerException e)
 						{
-							List<JSONObject> tasks=new ArrayList<JSONObject>();
-							tasks.add(newTask);
-							requests.put(players.get(i), tasks);
+							continue;
 						}
+						
 					}
 					return true;
 					
@@ -614,16 +697,24 @@ public class Management
 					List<String> players=games.get(gameID).getUsers();
 					for(int i=0;i<players.size();i++)
 					{
-						if(requests.containsKey(players.get(i)))
+						try
 						{
-							requests.get(players.get(i)).add(update);
+							if(requests.containsKey(players.get(i)))
+							{
+								requests.get(players.get(i)).add(update);
+							}
+							else
+							{
+								List<JSONObject> tasks=new ArrayList<JSONObject>();
+								tasks.add(update);
+								requests.put(players.get(i), tasks);
+							}
 						}
-						else
+						catch(NullPointerException e)
 						{
-							List<JSONObject> tasks=new ArrayList<JSONObject>();
-							tasks.add(update);
-							requests.put(players.get(i), tasks);
+							continue;
 						}
+						
 					}
 				}
 				else
@@ -636,26 +727,29 @@ public class Management
 					{
 						if(players.get(i).equals(username))
 							continue;
-						if(requests.containsKey(players.get(i)))
+						try
 						{
-							requests.get(players.get(i)).add(update);
-							requests.get(players.get(i)).add(task);
+							if(requests.containsKey(players.get(i)))
+							{
+								requests.get(players.get(i)).add(update);
+								requests.get(players.get(i)).add(task);
+							}
+							else
+							{
+								List<JSONObject> tasks=new ArrayList<JSONObject>();
+								tasks.add(update);
+								tasks.add(task);
+								requests.put(players.get(i), tasks);
+							}
 						}
-						else
+						catch(NullPointerException e)
 						{
-							List<JSONObject> tasks=new ArrayList<JSONObject>();
-							tasks.add(update);
-							tasks.add(task);
-							requests.put(players.get(i), tasks);
+							continue;
 						}
+						
 					}
 				}
 			}
-//			else if(command.get("commandType").equals("aliveReply"))
-//			{
-//				String user=command.get("user").toString();
-//				alive.put(user, Boolean.TRUE);
-//			}
 			else if(command.get("commandType").equals("terminateGame"))
 			{
 				int gameID=Integer.parseInt(command.get("gameID").toString());
@@ -665,20 +759,30 @@ public class Management
 				List<String> players=game.getUsers();
 				for(int i=0;i<players.size();i++)
 				{
+					if(!users.containsKey(players.get(i)))
+						continue;
 					users.get(players.get(i)).outOfGame();
 					if(!players.get(i).equals(user))
 					{
 						JSONObject newTask=JsonParser.generateJsonTerminateGame(gameID, players.get(i));
-						if(requests.containsKey(players.get(i)))
+						try
 						{
-							requests.get(players.get(i)).add(newTask);
+							if(requests.containsKey(players.get(i)))
+							{
+								requests.get(players.get(i)).add(newTask);
+							}
+							else
+							{
+								List<JSONObject> tasks=new ArrayList<JSONObject>();
+								tasks.add(newTask);
+								requests.put(players.get(i), tasks);
+							}
 						}
-						else
+						catch(NullPointerException e)
 						{
-							List<JSONObject> tasks=new ArrayList<JSONObject>();
-							tasks.add(newTask);
-							requests.put(players.get(i), tasks);
+							continue;
 						}
+						
 					}
 				}
 				return true;
@@ -734,16 +838,24 @@ public class Management
 					JSONObject task=JsonParser.generateJsonVoteReplyToClients(gameID, host, result);
 					for(int i=0;i<gamePlayer.size();i++)
 					{
-						if(requests.containsKey(gamePlayer.get(i)))
+						try
 						{
-							requests.get(gamePlayer.get(i)).add(task);
+							if(requests.containsKey(gamePlayer.get(i)))
+							{
+								requests.get(gamePlayer.get(i)).add(task);
+							}
+							else
+							{
+								List<JSONObject> tasks=new ArrayList<JSONObject>();
+								tasks.add(task);
+								requests.put(gamePlayer.get(i), tasks);
+							}
 						}
-						else
+						catch(NullPointerException e)
 						{
-							List<JSONObject> tasks=new ArrayList<JSONObject>();
-							tasks.add(task);
-							requests.put(gamePlayer.get(i), tasks);
+							continue;
 						}
+						
 					}
 				}
 			}
@@ -771,16 +883,24 @@ public class Management
 					Entry<String, User> entry = iterator.next();
 					String name = entry.getKey();
 					JSONObject task=JsonParser.generateJsonAlive();
-					if(requests.containsKey(name))
+					try
 					{
-						requests.get(name).add(task);
+						if(requests.containsKey(name))
+						{
+							requests.get(name).add(task);
+						}
+						else
+						{
+							List<JSONObject> tasks=new ArrayList<JSONObject>();
+							tasks.add(task);
+							requests.put(name, tasks);
+						}
 					}
-					else
+					catch(NullPointerException e)
 					{
-						List<JSONObject> tasks=new ArrayList<JSONObject>();
-						tasks.add(task);
-						requests.put(name, tasks);
+						continue;
 					}
+					
 				}
 					
 			}
