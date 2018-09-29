@@ -27,6 +27,12 @@
   
 ## Current Progress
 
-Almost finished
+Almost finished: Need multiagent testing
 
-Need testing
+Need to improve:
+
+- Client Exception handling
+
+- Input checking(use regex)
+
+- Scoring
