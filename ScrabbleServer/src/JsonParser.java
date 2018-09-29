@@ -263,4 +263,16 @@ public class JsonParser
 		newCommand.put("commandType", "aliveReply");
 		return newCommand;
 	}
+	
+	// check alive: server to client
+	public static JSONObject generateJsonUserMessage(int gameID,String user,String message)
+	{
+		JSONObject newCommand = new JSONObject();
+		newCommand.put("commandType", "message");
+		newCommand.put("gameID", gameID);
+		newCommand.put("user", user);
+		newCommand.put("message", message);
+		return newCommand;
+	}
+		
 }

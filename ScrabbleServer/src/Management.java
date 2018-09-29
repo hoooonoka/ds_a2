@@ -67,7 +67,11 @@ public class Management
 		List<User> targetUsers=new ArrayList<User>();
 		for(int i=0;i<names.length;i++)
 		{
-			targetUsers.add(users.get(names[i]));
+			if(users.containsKey(names[i]))
+			{
+				targetUsers.add(users.get(names[i]));
+			}
+			
 		}
 		return targetUsers;
 	}
@@ -150,6 +154,10 @@ public class Management
 					// add a user
 					User user=new User(clientSocket.getLocalAddress().getHostAddress(),username,false,5555);
 					users.put(username, user);
+					if(requests.containsKey(username))
+					{
+						requests.remove(username);
+					}
 					
 					// unique username
 					String[] usernames=genearteUsernames();
@@ -304,7 +312,7 @@ public class Management
 
 	}
 	
-	public static boolean decideMessageType(String jsonText)
+	public synchronized static boolean decideMessageType(String jsonText)
 	{
 		JSONParser parser = new JSONParser();
 		JSONObject command;
@@ -515,6 +523,29 @@ public class Management
 					}
 					
 				}
+			}
+			else if(command.get("commandType").equals("message"))
+			{
+				String username=command.get("user").toString();
+				int gameID=Integer.parseInt(command.get("gameID").toString());
+				String message=command.get("message").toString();
+				Game game=games.get(gameID);
+				JSONObject task=JsonParser.generateJsonUserMessage(gameID, username, message);
+				List<String> players=games.get(gameID).getUsers();
+				for(int i=0;i<players.size();i++)
+				{
+					if(requests.containsKey(players.get(i)))
+					{
+						requests.get(players.get(i)).add(task);
+					}
+					else
+					{
+						List<JSONObject> tasks=new ArrayList<JSONObject>();
+						tasks.add(task);
+						requests.put(players.get(i), tasks);
+					}
+				}
+				
 			}
 			else if(command.get("commandType").equals("operate"))
 			{
