@@ -42,14 +42,14 @@ public class Management
 		reply=new HashMap<Integer,HashMap<String,Boolean>>();
 	}
 	
-	public static boolean checkUsernameDuplicated(String username)
+	public synchronized static boolean checkUsernameDuplicated(String username)
 	{
 		if(users.containsKey(username))
 			return true;
 		return false;
 	}
 	
-	public static String[] genearteUsernames()
+	public synchronized static String[] genearteUsernames()
 	{
 		String[] names=new String[users.size()];
 		Iterator<Entry<String, User>> iterator = users.entrySet().iterator();
@@ -62,7 +62,7 @@ public class Management
 		return names;
 	}
 	
-	public static List<User> getUsersByName(String[] names)
+	public synchronized static List<User> getUsersByName(String[] names)
 	{
 		List<User> targetUsers=new ArrayList<User>();
 		for(int i=0;i<names.length;i++)
@@ -112,6 +112,7 @@ public class Management
 				try 
 				{
 					server.close();
+					ServerForm.updateLog("Server closed\n");
 				}
 				catch (IOException e) 
 				{
@@ -152,6 +153,7 @@ public class Management
 				else
 				{
 					// add a user
+					ServerForm.updateLog("New client "+username+" connected\n");
 					User user=new User(clientSocket.getLocalAddress().getHostAddress(),username,false,5555);
 					users.put(username, user);
 					if(requests.containsKey(username))
@@ -186,50 +188,28 @@ public class Management
 				    }
 				    
 				}
+			    boolean stop=false;
 			    while(true)
 			    {
-			    	if(requests.containsKey(username))
+			    	stop=sendMessage(username,output,input, command, parser, client);
+			    	if(stop)
 			    	{
-			    		List<JSONObject> sendingTasks=new ArrayList<JSONObject>(requests.get(username));
-			    		requests.remove(username);
-			    		for(int i=0;i<sendingTasks.size();i++)
-			    		{
-			    			if(!sendingTasks.get(i).get("commandType").equals("alive"))
-			    			{
-			    				System.out.println(username+" socket send: "+sendingTasks.get(i).toJSONString());
-			    			}
-			    			output.writeUTF(sendingTasks.get(i).toJSONString()+";");
-						    output.flush();
-			    		}
-			    	}
-			    	if(input.available() > 0)
-			    	{
-			    		// receive message
-			    		String messages=input.readUTF();
-			    		String[] jsonMessages=messages.split(";",-1);
-			    		boolean stop=false;
-			    		for(int i=0;i<jsonMessages.length;i++)
-			    		{
-			    			if(!jsonMessages[i].equals(""))
-			    			{
-			    				// not empty
-			    				
-			    				command = (JSONObject) parser.parse(jsonMessages[i]);
-			    				if(!command.get("commandType").equals("aliveReply"))
-			    				{
-			    					System.out.println(username+" socket receive: "+jsonMessages[i]);
-			    				}
-			    				boolean connect=decideMessageType(jsonMessages[i]);
-			    				if(connect==false)
-			    				{
-			    					stop=true;
-			    					break;
-			    				}
-			    					
-			    			}
-			    		}
-			    		if(stop)
-			    			break;
+			    		if(client != null) 
+						{
+							try 
+							{
+								client.close();
+								users.remove(username);
+								return;
+							}
+							catch (IOException e) 
+							{
+								System.out.println("error occuring when closing listen thread");
+								users.remove(username);
+								return;
+							}
+						}
+			    		return;
 			    	}
 			    }
 			    
@@ -253,55 +233,10 @@ public class Management
 			{
 				try 
 				{
+					
+					endUp(username);
 					client.close();
-					System.out.println("connection to "+username+" closed");
-					User user=users.get(username);
-					if(user.inAGame())
-					{
-						int gameID=user.getCurrentGameID();
-						List<String> players=games.get(gameID).getUsers();
-						for(int i=0;i<players.size();i++)
-						{
-							// send terminate game message to other users
-							if(!players.get(i).equals(username))
-							{
-								JSONObject task=JsonParser.generateJsonTerminateGame(gameID,players.get(i));
-								users.get(players.get(i)).outOfGame();
-								if(requests.containsKey(players.get(i)))
-								{
-									requests.get(players.get(i)).add(task);
-								}
-								else
-								{
-									List<JSONObject> sendingTasks=new ArrayList<JSONObject>();
-									sendingTasks.add(task);
-									requests.put(players.get(i), sendingTasks);
-								}
-								
-							}
-						}
-					}
-					
 					users.remove(username);
-					String[] usernames=genearteUsernames();
-					for(int i=0;i<usernames.length;i++)
-				    {
-				    	if(!usernames[i].equals(username))
-				    	{
-				    		JSONObject newTask=JsonParser.generateJsonUsersUpdated(usernames);
-							if(requests.containsKey(usernames[i]))
-							{
-								requests.get(usernames[i]).add(newTask);
-							}
-							else
-							{
-								List<JSONObject> sendingTasks=new ArrayList<JSONObject>();
-								sendingTasks.add(newTask);
-								requests.put(usernames[i], sendingTasks);
-							}
-				    	}
-				    }
-					
 				}
 				catch (IOException e) 
 				{
@@ -311,6 +246,83 @@ public class Management
 		}
 
 	}
+	
+	public synchronized static void endUp(String username)
+	{
+
+		ServerForm.updateLog("Client "+username+" logout\n");
+		System.out.println("connection to "+username+" closed");
+	}
+	
+	public synchronized static boolean sendMessage(String username, DataOutputStream output, DataInputStream input, JSONObject command, JSONParser parser, Socket client)
+	{
+		try
+		{
+			if(requests.containsKey(username))
+	    	{
+	    		List<JSONObject> sendingTasks=new ArrayList<JSONObject>(requests.get(username));
+	    		requests.remove(username);
+	    		for(int i=0;i<sendingTasks.size();i++)
+	    		{
+	    			if(!sendingTasks.get(i).get("commandType").equals("alive"))
+	    			{
+	    				System.out.println(username+" socket send: "+sendingTasks.get(i).toJSONString());
+	    			}
+	    			output.writeUTF(sendingTasks.get(i).toJSONString()+";");
+				    output.flush();
+	    		}
+	    	}
+			if(input.available() > 0)
+	    	{
+	    		// receive message
+	    		String messages=input.readUTF();
+	    		String[] jsonMessages=messages.split(";",-1);
+	    		boolean stop=false;
+	    		for(int i=0;i<jsonMessages.length;i++)
+	    		{
+	    			if(!jsonMessages[i].equals(""))
+	    			{
+	    				// not empty
+	    				
+	    				try 
+	    				{
+							command = (JSONObject) parser.parse(jsonMessages[i]);
+						} 
+	    				catch (ParseException e) 
+	    				{
+							// TODO Auto-generated catch block
+							return true;
+						}
+	    				if(!command.get("commandType").equals("aliveReply"))
+	    				{
+	    					System.out.println(username+" socket receive: "+jsonMessages[i]);
+	    				}
+	    				boolean connect=decideMessageType(jsonMessages[i]);
+	    				if(connect==false)
+	    				{
+	    					return true;
+	    				}
+	    					
+	    			}
+	    		}
+	    	}
+				
+			return false;
+		}
+		catch (SocketException ex) 
+    	{
+			System.out.println(username+" might be disconnected with server(ex)");
+			return true;
+		}
+    	catch (IOException e) 
+    	{
+    		System.out.println(username+" might be disconnected with server(e)");
+    		return true;
+		} 
+		
+		
+	}
+	
 	
 	public synchronized static boolean decideMessageType(String jsonText)
 	{
@@ -333,6 +345,7 @@ public class Management
 				
 				List<User> inviteUsers=getUsersByName(username);
 				String host=(String) command.get("host");
+				ServerForm.updateLog("Client "+host+" invited others to create a game(id:"+gameID+")\n");
 				// invites other clients
 				for(int i=0;i<inviteUsers.size();i++)
 				{
@@ -371,6 +384,7 @@ public class Management
 			{
 				// receive clients' logout information
 				String username=command.get("users").toString();
+				ServerForm.updateLog("Client "+username+" logout\n");
 				User user=users.get(username);
 				if(user.inAGame())
 				{
@@ -486,6 +500,7 @@ public class Management
 					{
 						// you have a lot of friends
 						// initialise the new game
+						ServerForm.updateLog("Client "+host+"'s game started\n");
 						games.get(gameID).setUsers(gamePlayer);
 						games.get(gameID).initialiseNewGame();
 						// informing guests the new game begins
@@ -509,6 +524,7 @@ public class Management
 					{
 						// no one wants to play with you
 						// informing host creates game fail
+						ServerForm.updateLog("Client "+host+"'s new game rejected: no users accepted invitation\n");
 						JSONObject newTask=JsonParser.generateJsonCreateGameReply(host, gameID, false, playersArray);
 						if(requests.containsKey(host))
 						{
@@ -558,6 +574,7 @@ public class Management
 					pass=true;
 					Operation operation=new Operation(username);
 					game.nextState(operation);
+					ServerForm.updateLog("Client "+username+"'s new operation: pass\n");
 				}
 				else
 				{
@@ -566,10 +583,12 @@ public class Management
 					int y=Integer.parseInt(command.get("positionY").toString());
 					Operation operation=new Operation(letter, x, y, username);
 					game.nextState(operation);
+					ServerForm.updateLog("Client "+username+"'s new operation: position: "+x+","+y+"; letter: "+letter+"\n");
 				}
 				if(game.end)
 				{
 					List<String> players=game.getUsers();
+					ServerForm.updateLog("Game "+gameID+"ended\n");
 					for(int i=0;i<players.size();i++)
 					{
 						JSONObject newTask=JsonParser.generateJsonTerminateGame(gameID, players.get(i));
@@ -642,6 +661,7 @@ public class Management
 				int gameID=Integer.parseInt(command.get("gameID").toString());
 				String user=command.get("users").toString();
 				Game game=games.get(gameID);
+				ServerForm.updateLog("Game "+gameID+"ended\n");
 				List<String> players=game.getUsers();
 				for(int i=0;i<players.size();i++)
 				{
@@ -706,6 +726,10 @@ public class Management
 							result=false;
 						}
 					}
+					if(result)
+						ServerForm.updateLog("Client "+host+"'s operation accepted\n");
+					else
+						ServerForm.updateLog("Client "+host+"'s operation denied\n");
 					gamePlayer.add(host);
 					JSONObject task=JsonParser.generateJsonVoteReplyToClients(gameID, host, result);
 					for(int i=0;i<gamePlayer.size();i++)
@@ -766,6 +790,15 @@ public class Management
 			}
 		} 
 		
+	}
+	
+	public static void startServer()
+	{
+		initialise();
+		Thread t = new Thread(() -> listenToClients());
+		t.start();
+		Thread tt = new Thread(() -> checkAlive());
+		tt.start();
 	}
 	
 	public static void main(String[] args)
