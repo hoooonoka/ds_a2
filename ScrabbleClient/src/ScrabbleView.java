@@ -48,18 +48,18 @@ import java.awt.event.WindowEvent;
 
 public class ScrabbleView {
 
-	private static JFrame frame;
+	public static JFrame frame;
 	private String regx ="[A-Z]{1}";
-	public static String[][] record = new String[21][21];
-	static JTextField[][] scrabbleTextField =new JTextField[21][21];
-	static JButton yesBtn = new JButton("V");
-	static JButton noBtn = new JButton("X");
-	static JButton changeBtn = new JButton("Change");
-	static JButton passBtn = new JButton("Pass");
-	static HashMap<String, Integer> result =new HashMap<String, Integer>();
-	static JLabel userTurnDisplayLabel = new JLabel("Display user name ");
+	public static String[][] record;
+	static JTextField[][] scrabbleTextField;
+	static JButton yesBtn;
+	static JButton noBtn ;
+	static JButton changeBtn;
+	static JButton passBtn;
+	static HashMap<String, Integer> result;
+	static JLabel userTurnDisplayLabel;
 	static JTextArea chatTextArea;
-	public static JList scorelist = new JList();
+	public static JList scorelist;
 
 	/**
 	 * Launch the application.
@@ -95,6 +95,18 @@ public class ScrabbleView {
 		frame.setBounds(100, 100, 950, 800);
 		frame.getContentPane().setLayout(null);
 		frame.setTitle("Scrabble Game");
+		
+		
+		record = new String[21][21];
+		scrabbleTextField =new JTextField[21][21];
+		yesBtn = new JButton("V");
+		noBtn = new JButton("X");
+		changeBtn = new JButton("Change");
+		passBtn = new JButton("Pass");
+		result =new HashMap<String, Integer>();
+		userTurnDisplayLabel = new JLabel("Display user name ");
+		scorelist = new JList();
+		chatTextArea=new JTextArea();
 		
 		JMenuBar menubar;
 	    JMenu gameMenu; 
@@ -325,7 +337,7 @@ public class ScrabbleView {
 
 		changeBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+				System.out.println("press change button");
 				Boolean check=checkupdated(scrabbleTextField);
 				if(check)
 				{
@@ -450,6 +462,7 @@ public class ScrabbleView {
            }
 		}
 		if(time==1){
+			System.out.println("insert letter");
 			AddTasks.addLetter(changedText.toCharArray()[0], xText, yText);
 			return true;
 		}

@@ -31,6 +31,7 @@ public class ConnectServer {
 	public static String[] allPlayers;
 	public static Game game;
 	public static HashMap<String, Integer> score;
+	public static ScrabbleView sv=null;
 	
 	public static void main(String[] args) {
 		
@@ -175,7 +176,9 @@ public class ConnectServer {
 				System.out.println("进入游戏界面");
 				HashMap<String, Integer> scores=game.getNewstGameState().getScores();
 				score=scores;
-				ScrabbleView sv = new ScrabbleView();
+				if(sv!=null)
+					sv.frame.dispose();
+				sv = new ScrabbleView();
 				MainWindow.frame.setVisible(false);
 				ScrabbleView.result=scores;
 				ScrabbleView.updateScore();
