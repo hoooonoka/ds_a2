@@ -141,7 +141,8 @@ public class MainWindow {
 	public static void openDialog(){
 		AcceptDialog acceptDialog = new AcceptDialog();
 		acceptDialog.setVisible(true);
-		acceptDialog.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		acceptDialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		acceptDialog.dispose();
 	}
 	
 	
@@ -153,6 +154,7 @@ public class MainWindow {
 				ConnectServer.invitedUsers.clear();
 				MainWindow.invitedUserList.setListData(new String[0]);
 			    frame.setVisible(false);
+				
 	           
 			}
 			else{

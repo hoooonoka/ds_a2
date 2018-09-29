@@ -175,7 +175,8 @@ public class ConnectServer {
 				System.out.println("进入游戏界面");
 				HashMap<String, Integer> scores=game.getNewstGameState().getScores();
 				score=scores;
-				ScrabbleView sv = new ScrabbleView(); 
+				ScrabbleView sv = new ScrabbleView();
+				MainWindow.frame.setVisible(false);
 				ScrabbleView.result=scores;
 				ScrabbleView.updateScore();
 				
