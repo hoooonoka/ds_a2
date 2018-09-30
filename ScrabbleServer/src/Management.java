@@ -134,6 +134,7 @@ public class Management
 	public static void coreControl(Socket client)
 	{
 		String username="";
+		boolean duplicatedName=false;
 		try(Socket clientSocket = client)
 		{
 			DataInputStream input = new DataInputStream(clientSocket.getInputStream());
@@ -150,6 +151,7 @@ public class Management
 			    if(checkUsernameDuplicated(username))
 				{
 					// duplicated username
+			    	duplicatedName=true;
 					JSONObject message=JsonParser.generateJsonLoginFail("Username has been used by other users, please change another one");
 					System.out.println(message.toJSONString());
 					output.writeUTF(message.toJSONString());
@@ -253,7 +255,7 @@ public class Management
 				try 
 				{
 					
-					endUp(username);
+					endUp(username,duplicatedName);
 					client.close();
 				}
 				catch (IOException e) 
@@ -266,11 +268,10 @@ public class Management
 	}
 	
 	
-	public synchronized static void endUp(String username)
+	public synchronized static void endUp(String username, boolean duplicatedName)
 	{
-
-		ServerForm.updateLog("Client "+username+" logout\n");
-		System.out.println("connection to "+username+" closed");
+		if(duplicatedName)
+			return;
 		ServerForm.updateLog("Client "+username+" logout\n");
 		System.out.println("connection to "+username+" closed");
 		User user=users.get(username);
