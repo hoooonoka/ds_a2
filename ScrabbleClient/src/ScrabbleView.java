@@ -279,25 +279,13 @@ public class ScrabbleView {
 //		  scrabbleTextField[19][12].setBackground(Color.blue);
 //		  scrabbleTextField[19][8].setBackground(Color.blue);
 		  
-//		  for(int i =2; i<=7;i++) {
-//			  scrabbleTextField[i][i].setBackground(Color.pink);
-//		  }
-//		  for(int i =13; i<=19;i++) {
-//			  scrabbleTextField[i][i].setBackground(Color.pink);
-//		  }
-//		  for(int i =1; i<=7;i++) {
-//			  scrabbleTextField[i][20-i].setBackground(Color.pink);
-//		  }
-//		  for(int i =13; i<=19;i++) {
-//			  scrabbleTextField[i][20-i].setBackground(Color.pink);
-//		  }
 		  
-		  for(int i=1; i<=20;i++)
-		  {
-			  scrabbleTextField[i][i].setBackground(Color.pink);
-			  scrabbleTextField[i][21-i].setBackground(Color.pink);
-			  
-		  }
+//		  for(int i=1; i<=20;i++)
+//		  {
+//			  scrabbleTextField[i][i].setBackground(Color.pink);
+//			  scrabbleTextField[i][21-i].setBackground(Color.pink);
+//			  
+//		  }
 		  
 		  for(int i=1;i<=20;i++){
 			  for (int j=1;j<=20;j++)
