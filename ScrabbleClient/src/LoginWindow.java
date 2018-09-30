@@ -9,10 +9,11 @@ import javax.swing.JTextField;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.SwingConstants;
 
 public class LoginWindow {
 
-	private JFrame frame;
+	public static JFrame frame;
 	private JTextField textField;
 	public static 		JLabel tips = new JLabel("");
 	JTextField ipTesxtField = new JTextField();
@@ -58,9 +59,10 @@ public class LoginWindow {
 		usernametextField.setBounds(80, 148, 130, 26);
 		frame.getContentPane().add(usernametextField);
 		usernametextField.setColumns(10);
+		tips.setHorizontalAlignment(SwingConstants.CENTER);
 		
 
-		tips.setBounds(143, 169, 211, 16);
+		tips.setBounds(37, 177, 391, 49);
 		frame.getContentPane().add(tips);
 		
 		JButton loginButton = new JButton("Log in");
@@ -82,7 +84,6 @@ public class LoginWindow {
 				}
 				else{
 					ConnectServer.username=username;
-					frame.setVisible(false);
 					Thread t = new Thread(() -> ConnectServer.creatUser(username));
 					t.start();
 				}
@@ -115,3 +116,4 @@ public class LoginWindow {
 		MainWindow mw = new MainWindow();
 	}
 }
+

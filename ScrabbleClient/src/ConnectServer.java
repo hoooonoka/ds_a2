@@ -59,7 +59,7 @@ public class ConnectServer {
 					
 					if(message.get("commandType").equals("loginSuccess")){
 						login="loginSuccess";
-						
+						LoginWindow.frame.setVisible(false);
 						String[] usernames1=((String) message.get("users")).split(",");
 						for(int i=0;i<usernames1.length;i++)
 						{
@@ -75,7 +75,7 @@ public class ConnectServer {
 						Thread t = new Thread(() -> LoginWindow.up());
 						t.start();
 						MainWindow.avaliableUserList.setListData(allUsersExceptSelf1);
-						
+						long startTime = System.currentTimeMillis(), endTime;
 						while(true){
 							
 							if(!tasks.isEmpty()){
@@ -87,16 +87,40 @@ public class ConnectServer {
 								tasks.clear();
 							}
 							
-								
 							if(input.available()>0)
 							{
+								startTime = System.currentTimeMillis();
 								String reply1 = input.readUTF();
+								
+								
+								
 								System.out.println(reply1);
 								String[] message2=reply1.split(";",-1);
 								JSONObject operationMessage = (JSONObject)parser.parse(message2[0]);
 								
 								decidedReplyType(operationMessage);
 								
+							}
+							else
+							{
+								endTime = System.currentTimeMillis();
+								long operationTime=endTime - startTime;
+								if(operationTime>5000)
+								{
+									try{
+									ScrabbleView.frame.dispose();
+	
+									}
+									
+									catch(NullPointerException e){
+										
+										
+									}
+									MainWindow.frame.dispose();
+									LoginWindow.frame.setVisible(true);
+									LoginWindow.tips.setText("<html><p>Server may not launched or Network connection is interrupted or port number is wrong</p></html>");
+									MainWindow.frame.setVisible(true);
+								}
 							}
 
 							
@@ -109,7 +133,7 @@ public class ConnectServer {
 					{
 						String reason=(String) message.get("reason");
 						login="loginFail";
-						LoginWindow.tips.setText(reason);
+						LoginWindow.tips.setText("<html><p>"+reason+"</html></p>");
 					}
 					
 				} catch (ParseException e) {
@@ -122,12 +146,11 @@ public class ConnectServer {
 		catch (UnknownHostException e) {
 			//return "ip address mistake";
 			LoginWindow.tips.setText("ip address mistake");
-			System.out.println("111111111111");
+			
 		} 
 		catch (IOException e) {
 			//return "<html><p>Search word fail,server may not launched or Network connection is interrupted or port number is wrong</p></html>";
-			LoginWindow.tips.setText("<html><p>Search word fail,server may not launched or Network connection is interrupted or port number is wrong</p></html>");
-			System.out.println("222222222222");
+			LoginWindow.tips.setText("<html><p>Server may not launched or Network connection is interrupted or port number is wrong</p></html>");
 		}
 
 	}

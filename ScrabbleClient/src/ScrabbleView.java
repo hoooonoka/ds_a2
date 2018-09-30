@@ -60,7 +60,8 @@ public class ScrabbleView {
 	static JLabel userTurnDisplayLabel;
 	static JTextArea chatTextArea;
 	public static JList scorelist;
-
+	public static String regx1="[a-zA-Z0-9 ]*";
+	public static JLabel messageTips = new JLabel("");
 	/**
 	 * Launch the application.
 	 */
@@ -379,14 +380,14 @@ public class ScrabbleView {
 //		frame.getContentPane().add(myMsgTextArea);
 		
 		JScrollPane chatScrollPane = new JScrollPane();
-		chatScrollPane.setBounds(668, 377, 251, 137);
+		chatScrollPane.setBounds(668, 343, 251, 138);
 		frame.getContentPane().add(chatScrollPane);
 		
 	    chatTextArea = new JTextArea();
 		chatScrollPane.setViewportView(chatTextArea);
 		
 		JScrollPane myMsgScrollPane = new JScrollPane();
-		myMsgScrollPane.setBounds(668, 554, 251, 50);
+		myMsgScrollPane.setBounds(668, 521, 251, 42);
 		frame.getContentPane().add(myMsgScrollPane);
 		
 		JTextArea myMsgTextArea = new JTextArea();
@@ -396,13 +397,23 @@ public class ScrabbleView {
 		sendBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String msg = myMsgTextArea.getText();
-				String message=ConnectServer.username+":"+msg;
-				JSONObject task=JsonParser.generateJsonUserMessage(ConnectServer.gameID,ConnectServer.username,message);
-				ConnectServer.tasks.add(task);
-				myMsgTextArea.setText(null);
+				
+				if(Pattern.matches(regx1, msg))
+				{
+					messageTips.setText(null);
+					String message=ConnectServer.username+":"+msg;
+					JSONObject task=JsonParser.generateJsonUserMessage(ConnectServer.gameID,ConnectServer.username,message);
+					ConnectServer.tasks.add(task);
+					myMsgTextArea.setText(null);
+
+				}
+				else{
+					messageTips.setText("<html><p>Message only contain letters and numbers</p></html>");
+				}
+			
 			}
 		});
-		sendBtn.setBounds(678, 616, 107, 39);
+		sendBtn.setBounds(678, 584, 97, 31);
 		frame.getContentPane().add(sendBtn);
 		
 		JButton clearBtn = new JButton("Clear");
@@ -411,17 +422,17 @@ public class ScrabbleView {
 				myMsgTextArea.setText(null);			
 			}
 		});
-		clearBtn.setBounds(816, 616, 103, 39);
+		clearBtn.setBounds(802, 584, 97, 31);
 		frame.getContentPane().add(clearBtn);
 		
 		JLabel lblChat = new JLabel("Chat");
-		lblChat.setBounds(668, 349, 117, 16);
+		lblChat.setBounds(668, 315, 117, 16);
 		lblChat.setForeground(Color.RED);
 		lblChat.setFont(new Font("Arial",Font.BOLD,18));
 		frame.getContentPane().add(lblChat);
 		
 		JLabel lblMyMessage = new JLabel("My Message");
-		lblMyMessage.setBounds(668, 526, 117, 16);
+		lblMyMessage.setBounds(668, 493, 117, 16);
 		lblMyMessage.setForeground(Color.RED);
 		lblMyMessage.setFont(new Font("Arial",Font.BOLD,18));
 		frame.getContentPane().add(lblMyMessage);
@@ -432,6 +443,10 @@ public class ScrabbleView {
 		userScoreLabel.setFont(new Font("Arial",Font.BOLD,18));
 		userScoreLabel.setBounds(765, 12, 61, 16);
 		frame.getContentPane().add(userScoreLabel);
+		
+		messageTips.setHorizontalAlignment(SwingConstants.CENTER);
+		messageTips.setBounds(690, 628, 229, 31);
+		frame.getContentPane().add(messageTips);
 		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
