@@ -352,6 +352,7 @@ public class Management
 	    			{
 	    				System.out.println(username+" socket send: "+sendingTasks.get(i).toJSONString());
 	    			}
+	    			System.out.println(sendingTasks.get(i).toJSONString()+";");
 	    			output.writeUTF(sendingTasks.get(i).toJSONString()+";");
 				    output.flush();
 	    		}
@@ -896,6 +897,7 @@ public class Management
 							tasks.add(task);
 							requests.put(name, tasks);
 						}
+						System.out.println(name+" check alive");
 					}
 					catch(NullPointerException e)
 					{
