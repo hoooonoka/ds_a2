@@ -239,56 +239,63 @@ public class ScrabbleView {
 		  scrabbleTextField[20][0].setText("20");
 		  
 		//first char must be filled in this yellow box
-		  scrabbleTextField[10][10].setBackground(Color.yellow);
+//		  scrabbleTextField[10][10].setBackground(Color.yellow);
 		  
 		  //score *3 red box
-		  scrabbleTextField[1][1].setBackground(Color.red);
-		  scrabbleTextField[1][10].setBackground(Color.red);
-		  scrabbleTextField[10][1].setBackground(Color.red);
-		  scrabbleTextField[1][20].setBackground(Color.red);
-		  scrabbleTextField[20][1].setBackground(Color.red);
-		  scrabbleTextField[20][10].setBackground(Color.red);
-		  scrabbleTextField[10][20].setBackground(Color.red);
-		  scrabbleTextField[20][20].setBackground(Color.red);
-		  
+//		  scrabbleTextField[1][1].setBackground(Color.red);
+//		  scrabbleTextField[1][10].setBackground(Color.red);
+//		  scrabbleTextField[10][1].setBackground(Color.red);
+//		  scrabbleTextField[1][20].setBackground(Color.red);
+//		  scrabbleTextField[20][1].setBackground(Color.red);
+//		  scrabbleTextField[20][10].setBackground(Color.red);
+//		  scrabbleTextField[10][20].setBackground(Color.red);
+//		  scrabbleTextField[20][20].setBackground(Color.red);
+//		  
 		//score *2 blue box
-		  scrabbleTextField[1][5].setBackground(Color.cyan);
-		  scrabbleTextField[1][15].setBackground(Color.cyan);
-		  scrabbleTextField[5][1].setBackground(Color.cyan);
-		  scrabbleTextField[15][1].setBackground(Color.cyan);	
-		  scrabbleTextField[5][20].setBackground(Color.cyan);
-		  scrabbleTextField[15][20].setBackground(Color.cyan);	
-		  scrabbleTextField[20][5].setBackground(Color.cyan);
-		  scrabbleTextField[20][15].setBackground(Color.cyan);
-		  scrabbleTextField[9][9].setBackground(Color.cyan);
-		  scrabbleTextField[11][9].setBackground(Color.cyan);
-		  scrabbleTextField[9][11].setBackground(Color.cyan);
-		  scrabbleTextField[11][11].setBackground(Color.cyan);
+//		  scrabbleTextField[1][5].setBackground(Color.cyan);
+//		  scrabbleTextField[1][15].setBackground(Color.cyan);
+//		  scrabbleTextField[5][1].setBackground(Color.cyan);
+//		  scrabbleTextField[15][1].setBackground(Color.cyan);	
+//		  scrabbleTextField[5][20].setBackground(Color.cyan);
+//		  scrabbleTextField[15][20].setBackground(Color.cyan);	
+//		  scrabbleTextField[20][5].setBackground(Color.cyan);
+//		  scrabbleTextField[20][15].setBackground(Color.cyan);
+//		  scrabbleTextField[9][9].setBackground(Color.cyan);
+//		  scrabbleTextField[11][9].setBackground(Color.cyan);
+//		  scrabbleTextField[9][11].setBackground(Color.cyan);
+//		  scrabbleTextField[11][11].setBackground(Color.cyan);
+//		  
+//		  scrabbleTextField[8][2].setBackground(Color.blue);
+//		  scrabbleTextField[8][8].setBackground(Color.blue);
+//		  scrabbleTextField[8][12].setBackground(Color.blue);
+//		  scrabbleTextField[8][19].setBackground(Color.blue);
+//		  scrabbleTextField[12][2].setBackground(Color.blue);
+//		  scrabbleTextField[12][8].setBackground(Color.blue);
+//		  scrabbleTextField[12][12].setBackground(Color.blue);	
+//		  scrabbleTextField[12][19].setBackground(Color.blue);	
+//		  scrabbleTextField[2][8].setBackground(Color.blue);
+//		  scrabbleTextField[2][12].setBackground(Color.blue);	
+//		  scrabbleTextField[19][12].setBackground(Color.blue);
+//		  scrabbleTextField[19][8].setBackground(Color.blue);
 		  
-		  scrabbleTextField[8][2].setBackground(Color.blue);
-		  scrabbleTextField[8][8].setBackground(Color.blue);
-		  scrabbleTextField[8][12].setBackground(Color.blue);
-		  scrabbleTextField[8][19].setBackground(Color.blue);
-		  scrabbleTextField[12][2].setBackground(Color.blue);
-		  scrabbleTextField[12][8].setBackground(Color.blue);
-		  scrabbleTextField[12][12].setBackground(Color.blue);	
-		  scrabbleTextField[12][19].setBackground(Color.blue);	
-		  scrabbleTextField[2][8].setBackground(Color.blue);
-		  scrabbleTextField[2][12].setBackground(Color.blue);	
-		  scrabbleTextField[19][12].setBackground(Color.blue);
-		  scrabbleTextField[19][8].setBackground(Color.blue);
+//		  for(int i =2; i<=7;i++) {
+//			  scrabbleTextField[i][i].setBackground(Color.pink);
+//		  }
+//		  for(int i =13; i<=19;i++) {
+//			  scrabbleTextField[i][i].setBackground(Color.pink);
+//		  }
+//		  for(int i =1; i<=7;i++) {
+//			  scrabbleTextField[i][20-i].setBackground(Color.pink);
+//		  }
+//		  for(int i =13; i<=19;i++) {
+//			  scrabbleTextField[i][20-i].setBackground(Color.pink);
+//		  }
 		  
-		  for(int i =2; i<=7;i++) {
+		  for(int i=1; i<=20;i++)
+		  {
 			  scrabbleTextField[i][i].setBackground(Color.pink);
-		  }
-		  for(int i =13; i<=19;i++) {
-			  scrabbleTextField[i][i].setBackground(Color.pink);
-		  }
-		  for(int i =1; i<=7;i++) {
-			  scrabbleTextField[i][20-i].setBackground(Color.pink);
-		  }
-		  for(int i =13; i<=19;i++) {
-			  scrabbleTextField[i][20-i].setBackground(Color.pink);
+			  scrabbleTextField[i][21-i].setBackground(Color.pink);
+			  
 		  }
 		  
 		  for(int i=1;i<=20;i++){
@@ -362,14 +369,28 @@ public class ScrabbleView {
 		passBtn.setEnabled(false);
 		frame.getContentPane().add(passBtn);
 		
-		chatTextArea = new JTextArea();
-		chatTextArea.setBounds(668, 377, 251, 137);
-		chatTextArea.setEditable(false);
-		frame.getContentPane().add(chatTextArea);
-				
+//		chatTextArea = new JTextArea();
+//		chatTextArea.setBounds(668, 377, 251, 137);
+//		chatTextArea.setEditable(false);
+//		frame.getContentPane().add(chatTextArea);
+//				
+//		JTextArea myMsgTextArea = new JTextArea();
+//		myMsgTextArea.setBounds(668, 554, 251, 50);
+//		frame.getContentPane().add(myMsgTextArea);
+		
+		JScrollPane chatScrollPane = new JScrollPane();
+		chatScrollPane.setBounds(668, 377, 251, 137);
+		frame.getContentPane().add(chatScrollPane);
+		
+	    chatTextArea = new JTextArea();
+		chatScrollPane.setViewportView(chatTextArea);
+		
+		JScrollPane myMsgScrollPane = new JScrollPane();
+		myMsgScrollPane.setBounds(668, 554, 251, 50);
+		frame.getContentPane().add(myMsgScrollPane);
+		
 		JTextArea myMsgTextArea = new JTextArea();
-		myMsgTextArea.setBounds(668, 554, 251, 50);
-		frame.getContentPane().add(myMsgTextArea);
+		myMsgScrollPane.setViewportView(myMsgTextArea);
 		
 		JButton sendBtn = new JButton("Send");
 		sendBtn.addActionListener(new ActionListener() {
@@ -404,16 +425,6 @@ public class ScrabbleView {
 		lblMyMessage.setForeground(Color.RED);
 		lblMyMessage.setFont(new Font("Arial",Font.BOLD,18));
 		frame.getContentPane().add(lblMyMessage);
-		
-		JLabel gameErrorLabel = new JLabel("<html><body>label for <br> game error information</body></html>");
-		gameErrorLabel.setForeground(Color.RED);
-		gameErrorLabel.setBounds(668, 304, 276, 42);
-		frame.getContentPane().add(gameErrorLabel);
-		
-		JLabel chatErrorLable = new JLabel("label for chat error");
-		chatErrorLable.setForeground(Color.RED);
-		chatErrorLable.setBounds(668, 661, 276, 42);
-		frame.getContentPane().add(chatErrorLable);		
 		frame.setVisible(true);
 		
 		JLabel userScoreLabel = new JLabel("Score");
@@ -530,5 +541,4 @@ public class ScrabbleView {
 		return temp;  	
 		
    }
-
 }
