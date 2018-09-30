@@ -116,7 +116,12 @@ public class ConnectServer {
 										
 										
 									}
+									String[] a=new String[0];
+									MainWindow.avaliableUserList.setListData(a);
+									MainWindow.invitedUserList.setListData(a);
+									allUsersExceptSelf.clear();
 									MainWindow.frame.dispose();
+									
 									LoginWindow.frame.setVisible(true);
 									LoginWindow.tips.setText("<html><p>Server may not launched or Network connection is interrupted or port number is wrong</p></html>");
 									//MainWindow.frame.setVisible(true);
