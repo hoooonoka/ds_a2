@@ -119,7 +119,8 @@ public class ConnectServer {
 									MainWindow.frame.dispose();
 									LoginWindow.frame.setVisible(true);
 									LoginWindow.tips.setText("<html><p>Server may not launched or Network connection is interrupted or port number is wrong</p></html>");
-									MainWindow.frame.setVisible(true);
+									//MainWindow.frame.setVisible(true);
+									break;
 								}
 							}
 
