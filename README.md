@@ -10,7 +10,7 @@
 ## Role
 
 - Zhouhui Wu :
-  - Server: server architecture and function
+  - Server
   - Game
   - Protocol: protocol and message format design
   
@@ -22,7 +22,7 @@
   - Interface
   
 - Ziling He:
-  - Server: server function
+  - Server
   - Game
   
 ## Current Progress
