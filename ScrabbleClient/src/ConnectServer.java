@@ -434,7 +434,12 @@ public class ConnectServer {
 		{
 			String reason=MainWindow.inviteStatusTextArea.getText();
 			reason=reason+operationMessage.get("reason").toString();
+			System.out.println(reason);
 			MainWindow.inviteStatusTextArea.setText(reason);
+			MainWindow.frame.setVisible(true);
+			String[] invitedUser =new String[0];
+			MainWindow.invitedUserList.setListData(invitedUser);
+			invitedUsers.clear();
 			
 		}
 		else if(operationMessage.get("commandType").equals("message"))

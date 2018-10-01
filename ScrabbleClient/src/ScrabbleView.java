@@ -452,12 +452,80 @@ public class ScrabbleView {
 		
 	}
 	
+	public boolean checkNeighbour(JTextField [][] textfield)
+	{
+		int num=0;
+		for(int i=1; i<21;i++)
+		{
+			for(int j=1;j<21;j++)
+			{
+				if(!textfield[i][j].getText().equals(""))
+				{
+					num++;
+				}
+			}
+		}
+		if(num==1)
+			return false;
+		for(int i=1; i<21;i++)
+		{
+			for(int j=1;j<21;j++)
+           {
+              
+				if(!textfield[i][j].getText().equals(""))
+				{
+					boolean result=true;
+					if(i>=2)
+					{
+						if(!textfield[i-1][j].getText().equals(""))
+						{
+							result=false;
+							continue;
+						}
+					}
+					if(i<=19)
+					{
+						if(!textfield[i+1][j].getText().equals(""))
+						{
+							result=false;
+							continue;
+						}
+					}
+					if(j>=2)
+					{
+						if(!textfield[i][j-1].getText().equals(""))
+						{
+							result=false;
+							continue;
+						}
+					}
+					if(j<=19)
+					{
+						if(!textfield[i][j+1].getText().equals(""))
+						{
+							result=false;
+							continue;
+						}
+					}
+					return true;
+				}
+              
+           }
+		}
+		return false;
+	}
+	
 	public boolean checkupdated(JTextField [][] textfield)
 	{
 		int time=0;
 		int xText = 0;
 		int yText = 0;
 		String changedText = null;
+		if(checkNeighbour(textfield))
+		{
+			JOptionPane.showMessageDialog(null, "New letter must be adjacent to other letters",null,JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
 		for(int i=1; i<21;i++)
 		{
 			for(int j=1;j<21;j++)
