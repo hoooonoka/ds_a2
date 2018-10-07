@@ -1,4 +1,3 @@
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -369,6 +368,7 @@ public class ConnectServer {
 							ScrabbleView.record[x][y]= String.valueOf(grid[x-1][y-1]);
 					}
 				}
+				
 				String nextPlayer=game.getNewstGameState().getNextTurn();
 				ScrabbleView.userTurnDisplayLabel.setText(nextPlayer+"'s turn");
 				if(username.equals(nextPlayer))
@@ -420,8 +420,10 @@ public class ConnectServer {
 				}
 			}
 			winner = winner.substring(0,winner.length() - 1);
-			ScrabbleView.userTurnDisplayLabel.setText("Winner is "+winner+" and highest score is "+highestScore);
 			
+			String result="Winner is "+winner+" and highest score is "+highestScore;
+			ScrabbleView.userTurnDisplayLabel.setText("Winner is "+winner+" and highest score is "+highestScore);
+			ScrabbleView.showMessageBox(result);
 			
 			
 		}

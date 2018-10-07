@@ -99,9 +99,10 @@ public class Game
 	}
 	
 	public void returnToLastGameState(){
-		this.states.remove(this.states.size()-1);
-		this.operations.remove(this.operations.size()-1);
-		this.states.get(this.states.size()-1).changeNextTurn();
+		this.states.get(this.states.size()-1).setScores(this.states.get(this.states.size()-2).getScores());
+		//this.states.remove(this.states.size()-1);
+		//this.operations.remove(this.operations.size()-1);
+		//this.states.get(this.states.size()-1).changeNextTurn();
 	}
 	
 //	public void endGame()

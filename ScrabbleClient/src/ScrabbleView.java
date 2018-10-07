@@ -1,4 +1,3 @@
-
 import java.awt.Color;
 import java.awt.EventQueue;
 
@@ -90,8 +89,7 @@ public class ScrabbleView {
 	 */
 	private void initialize() 
 	{
-//		result.put("dogshng", 11);
-//		result.put("wuzhouhui", 22);
+		
 		frame = new JFrame();
 		frame.setBounds(100, 100, 950, 800);
 		frame.getContentPane().setLayout(null);
@@ -127,6 +125,7 @@ public class ScrabbleView {
         		else if(n==JOptionPane.NO_OPTION){}
         		
         	}
+        	
         });
         gameMenu.add(quitItem);       
         menubar.add(gameMenu);
@@ -612,4 +611,10 @@ public class ScrabbleView {
 		return temp;  	
 		
    }
+	
+	public static void showMessageBox(String message)
+	{
+		JOptionPane.showMessageDialog(yesBtn, message);
+	}
+	
 }

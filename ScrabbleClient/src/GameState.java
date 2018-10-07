@@ -62,6 +62,10 @@ public class GameState
 	{
 		return this.scores;
 	}
+	public void setScores(HashMap<String, Integer> scores)
+	{
+		this.scores=scores;
+	}
 	
 	public String getNextTurn()
 	{
