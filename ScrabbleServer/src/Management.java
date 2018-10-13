@@ -352,7 +352,7 @@ public class Management
 	    			{
 	    				System.out.println(username+" socket send: "+sendingTasks.get(i).toJSONString());
 	    			}
-	    			System.out.println(sendingTasks.get(i).toJSONString()+";");
+//	    			System.out.println(sendingTasks.get(i).toJSONString()+";");
 	    			output.writeUTF(sendingTasks.get(i).toJSONString()+";");
 				    output.flush();
 	    		}
@@ -721,14 +721,22 @@ public class Management
 				}
 				else
 				{
-					// not pass: need to vote
+					// not pass: send vote message; client will check inside the message if need to vote
+					boolean needToVote=false;
+					if(command.get("vote").equals("yes"))
+						needToVote=true;
 					JSONObject update=JsonParser.generateJsonUpdateGame(gameID, username, game);
-					JSONObject task=JsonParser.generateJsonVote(gameID, username);
+					JSONObject task=JsonParser.generateJsonVote(gameID, username,needToVote);
+					if(!needToVote)
+					{
+						GameState state=games.get(gameID).getGameStates().get(games.get(gameID).getGameStates().size()-1);
+						state.setScores(games.get(gameID).getGameStates().get(games.get(gameID).getGameStates().size()-2).getScores());
+					}
 					List<String> players=games.get(gameID).getUsers();
 					for(int i=0;i<players.size();i++)
 					{
-						if(players.get(i).equals(username))
-							continue;
+//						if(players.get(i).equals(username))
+//							continue;
 						try
 						{
 							if(requests.containsKey(players.get(i)))
@@ -835,7 +843,12 @@ public class Management
 					if(result)
 						ServerForm.updateLog("Client "+host+"'s operation accepted\n");
 					else
+					{
 						ServerForm.updateLog("Client "+host+"'s operation denied\n");
+						GameState state=games.get(gameID).getGameStates().get(games.get(gameID).getGameStates().size()-1);
+						state.setScores(games.get(gameID).getGameStates().get(games.get(gameID).getGameStates().size()-2).getScores());
+					}
+						
 					gamePlayer.add(host);
 					JSONObject task=JsonParser.generateJsonVoteReplyToClients(gameID, host, result);
 					for(int i=0;i<gamePlayer.size();i++)
@@ -897,7 +910,7 @@ public class Management
 							tasks.add(task);
 							requests.put(name, tasks);
 						}
-						System.out.println(name+" check alive");
+//						System.out.println(name+" check alive");
 					}
 					catch(NullPointerException e)
 					{
