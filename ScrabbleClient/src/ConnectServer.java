@@ -280,6 +280,7 @@ public class ConnectServer {
 				}
 				if(!ChangeScrabbleView.user.equals(username))
 				{
+					ScrabbleView.setBackGroundColor();
 					ScrabbleView.updateScrabble();
 				}
 				
@@ -320,6 +321,7 @@ public class ConnectServer {
 					}
 					if(!ChangeScrabbleView.user.equals(username))
 					{
+						ScrabbleView.setBackGroundColor();
 						ScrabbleView.updateScrabble();
 					}
 					
@@ -370,9 +372,8 @@ public class ConnectServer {
 				System.out.println("username: "+username);
 				if(!ChangeScrabbleView.user.equals(username))
 				{
-					System.out.println("123");
+					ScrabbleView.setBackGroundColor();
 					ScrabbleView.updateScrabble();
-					System.out.println("456");
 				}
 				
 			
@@ -408,7 +409,11 @@ public class ConnectServer {
 							ScrabbleView.record[x][y]= String.valueOf(grid[x-1][y-1]);
 					}
 				}
-				ScrabbleView.updateScrabble();
+				if(!ChangeScrabbleView.user.equals(username))
+				{
+					ScrabbleView.setBackGroundColor();
+					ScrabbleView.updateScrabble();
+				}
 				
 			}
 			//投票未通过，回到上一个gamestate,更新GUI，下一个用户可以开始操作
@@ -433,7 +438,11 @@ public class ConnectServer {
 				{
 					ScrabbleView.allButtonEnables(true);
 				}
-				ScrabbleView.updateScrabble();
+				if(!ChangeScrabbleView.user.equals(username))
+				{
+					ScrabbleView.setBackGroundColor();
+					ScrabbleView.updateScrabble();
+				}
 				
 			}
 		}
