@@ -3,16 +3,16 @@ public class AddTasks {
 
 	public static int score;
 	
-	//按下邀请接受按钮后
+	//After pressing the invite button,add task to tasks list
 	public static void acceptInvitation(){
 		ConnectServer.tasks.add(JsonParser.generateJsonInvitationReply(ConnectServer.username, ConnectServer.gameID, true,ConnectServer.gameCreater));
 	}
-	//按下邀请拒绝按钮后
+	//After pressing refuse button
 	public static void refuseInvitation(){
 		ConnectServer.tasks.add(JsonParser.generateJsonInvitationReply(ConnectServer.username, ConnectServer.gameID, false,ConnectServer.gameCreater));
 	}
-	
-	//将添加单词操作添加到task列表中
+
+	//Add the add word process into tasks list
 	public static void addLetter(char changedText,int x,int y, boolean isvote){
 		Operation operation=new Operation(changedText,x,y,ConnectServer.username);
 		ConnectServer.game.nextState(operation);
@@ -20,7 +20,7 @@ public class AddTasks {
 		ScrabbleView.userTurnDisplayLabel.setText(nextPlayer+"'s turn");
 		ConnectServer.tasks.add(JsonParser.generateJsonOperation(operation, ConnectServer.gameID,isvote));
 	}
-	//将pass操作添加到task列表中
+	//Add pass process into tasks list
 	public static void pass(boolean isvote){
 		Operation operation=new Operation(ConnectServer.username);
 		ConnectServer.game.nextState(operation);
@@ -29,7 +29,7 @@ public class AddTasks {
 		ConnectServer.tasks.add(JsonParser.generateJsonOperation(operation, ConnectServer.gameID,isvote));
 	}
 	
-	//将投票结果添加到task列表
+	//Add vote result into tasks list
 	public static void YesVoteResult(){
 		ConnectServer.tasks.add(JsonParser.generateJsonVoteReply(ConnectServer.gameID,true,ConnectServer.username,ChangeScrabbleView.user));
 	}
@@ -40,8 +40,7 @@ public class AddTasks {
 	public static void returnAlive(){
 		ConnectServer.tasks.add(JsonParser.generateJsonAliveReply(ConnectServer.username));
 	}
-	
-	//发送玩家退出游戏消息
+	//Add player quit message to tasks list
 	public static void sendCloseCurrentGameMessage(){
 		ConnectServer.tasks.add(JsonParser.generateJsonTerminateGame(ConnectServer.gameID, ConnectServer.username));
 	}

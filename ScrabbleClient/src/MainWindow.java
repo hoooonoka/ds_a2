@@ -1,11 +1,13 @@
 
-
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
 import java.awt.event.ActionListener;
@@ -50,26 +52,50 @@ public class MainWindow {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
+		JMenuBar menubar;
+	    JMenu gameMenu; 
+	    JMenuItem quitItem;
+	    menubar = new JMenuBar();
+        gameMenu = new JMenu("Menu");
+        quitItem = new JMenuItem("Quit current game");    
+        quitItem.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		int n =JOptionPane.showConfirmDialog(null,"Do you want to log out?", null,JOptionPane.YES_NO_CANCEL_OPTION);
+        		if(n ==JOptionPane.YES_OPTION)
+        		{
+        			frame.dispose();
+        			LoginWindow.frame.setVisible(true);
+        			ConnectServer.isOffline=true;
+        		}
+        		else if(n==JOptionPane.NO_OPTION){}
+        		
+        	}
+        	
+        });
+        gameMenu.add(quitItem);       
+        menubar.add(gameMenu);
+        frame.setJMenuBar(menubar);
+        
 		JLabel ScrabbleLabel = new JLabel("Scrabble Game");
 		ScrabbleLabel.setForeground(Color.RED);
-		ScrabbleLabel.setBounds(22, 6, 101, 35);
+		ScrabbleLabel.setBounds(165, 36, 101, 35);
 		frame.getContentPane().add(ScrabbleLabel);
 		
 		JLabel availableUserLabel = new JLabel("Avaliable Users");
-		availableUserLabel.setBounds(27, 41, 135, 16);
+		availableUserLabel.setBounds(30, 71, 135, 16);
 		frame.getContentPane().add(availableUserLabel);
 		
 		JScrollPane availableUserScrollPane = new JScrollPane(avaliableUserList);
-		availableUserScrollPane.setBounds(27, 70, 150, 116);
+		availableUserScrollPane.setBounds(27, 99, 150, 116);
 		frame.getContentPane().add(availableUserScrollPane);
 		
 		JLabel addedUserLabel = new JLabel("Added Users");
-		addedUserLabel.setBounds(269, 42, 113, 16);
+		addedUserLabel.setBounds(269, 71, 113, 16);
 		frame.getContentPane().add(addedUserLabel);
 		
 		
 		JScrollPane addedUserScrollPane = new JScrollPane(invitedUserList);
-		addedUserScrollPane.setBounds(269, 70, 150, 116);
+		addedUserScrollPane.setBounds(269, 97, 150, 110);
 		frame.getContentPane().add(addedUserScrollPane);
 		
 		JButton newGameButton = new JButton("New Game");
@@ -77,7 +103,7 @@ public class MainWindow {
 		frame.getContentPane().add(newGameButton);
 		
 		JButton addUserButton = new JButton("+");
-		addUserButton.setBounds(203, 116, 37, 29);
+		addUserButton.setBounds(203, 140, 37, 29);
 		frame.getContentPane().add(addUserButton);
 		
 		JLabel statusLabel = new JLabel("Status");
@@ -96,16 +122,6 @@ public class MainWindow {
 				String chosenName=(String) avaliableUserList.getSelectedValue();
 				if(chosenName!=null)
 				{
-//					for(int i=0;i<ConnectServer.allUsersExceptSelf.size();i++)
-//					{
-//						if(ConnectServer.allUsersExceptSelf.get(i).equals(chosenName))
-//						{
-//							ConnectServer.allUsersExceptSelf.remove(i);
-//							i--;
-//						}
-//					}
-//					String[] changedUsernames = ConnectServer.allUsersExceptSelf.toArray(new String[ConnectServer.allUsersExceptSelf.size()]);
-//					avaliableUserList.setListData(changedUsernames);
 					for(int i=0;i<ConnectServer.invitedUsers.size();i++)
 					{
 						if(chosenName.equals(ConnectServer.invitedUsers.get(i)))
@@ -131,13 +147,8 @@ public class MainWindow {
 	private void initialize() {
 		
 		
-// 注释的三行是对话框，如果需要重新设计窗口，需要注释这三行。
-		
-//		AcceptDialog acceptDialog = new AcceptDialog();
-//		acceptDialog.setVisible(true);
-//		acceptDialog.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 	}
-	//弹出对话框
+	// Open dialog
 	public static void openDialog(){
 		AcceptDialog acceptDialog = new AcceptDialog();
 		acceptDialog.setVisible(true);

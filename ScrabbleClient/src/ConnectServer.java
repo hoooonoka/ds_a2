@@ -31,6 +31,7 @@ public class ConnectServer {
 	public static Game game;
 	public static HashMap<String, Integer> score;
 	public static ScrabbleView sv=null;
+	public static boolean isOffline=false;
 	
 	public static void main(String[] args) {
 		
@@ -58,25 +59,29 @@ public class ConnectServer {
 					
 					if(message.get("commandType").equals("loginSuccess")){
 						login="loginSuccess";
+						isOffline=false;
 						LoginWindow.frame.setVisible(false);
-						String[] usernames1=((String) message.get("users")).split(",");
-						for(int i=0;i<usernames1.length;i++)
+						String[] temp=((String) message.get("users")).split(",");
+						for(int i=0;i<temp.length;i++)
 						{
-							if(!usernames1[i].equals(username))
+							if(!temp[i].equals(username))
 							{
-								allUsersExceptSelf.add(usernames1[i]);
+								allUsersExceptSelf.add(temp[i]);
 							}
 						}
 						String[] allUsersExceptSelf1 = allUsersExceptSelf.toArray(new String[allUsersExceptSelf.size()]); 
-						List listusername=Arrays.asList(usernames1);
+						List listusername=Arrays.asList(temp);
 						usernames=new ArrayList(listusername);
-						//MainWindow mw = new MainWindow();
+						//up() function is used to create main window
 						Thread t = new Thread(() -> LoginWindow.up());
 						t.start();
 						MainWindow.avaliableUserList.setListData(allUsersExceptSelf1);
 						long startTime = System.currentTimeMillis(), endTime;
 						while(true){
-							
+							if(isOffline)
+							{
+								break;
+							}
 							if(!tasks.isEmpty()){
 								for(int i=0;i<tasks.size();i++)
 								{
@@ -91,9 +96,6 @@ public class ConnectServer {
 								startTime = System.currentTimeMillis();
 								String reply1 = input.readUTF();
 								
-								
-								
-								//System.out.println(reply1);
 								String[] message2=reply1.split(";",-1);
 								JSONObject operationMessage = (JSONObject)parser.parse(message2[0]);
 								
@@ -123,7 +125,6 @@ public class ConnectServer {
 									
 									LoginWindow.frame.setVisible(true);
 									LoginWindow.tips.setText("<html><p>Server may not launched or Network connection is interrupted or port number is wrong</p></html>");
-									//MainWindow.frame.setVisible(true);
 									break;
 								}
 							}
@@ -154,7 +155,6 @@ public class ConnectServer {
 			
 		} 
 		catch (IOException e) {
-			//return "<html><p>Search word fail,server may not launched or Network connection is interrupted or port number is wrong</p></html>";
 			LoginWindow.tips.setText("<html><p>Server may not launched or Network connection is interrupted or port number is wrong</p></html>");
 		}
 
@@ -181,27 +181,24 @@ public class ConnectServer {
 					allUsersExceptSelf.add(usernames1[i]);
 				}
 			}
-			String[] allUsersExceptSelf1 = allUsersExceptSelf.toArray(new String[allUsersExceptSelf.size()]);
-			MainWindow.avaliableUserList.setListData(allUsersExceptSelf1);
+			String[] allUsersExceptSelfTemp = allUsersExceptSelf.toArray(new String[allUsersExceptSelf.size()]);
+			MainWindow.avaliableUserList.setListData(allUsersExceptSelfTemp);
 		}
 		
 		if(operationMessage.get("commandType").equals("invitation"))
 		{
-			System.out.println("接受到邀请");
 			gameID=Integer.parseInt(operationMessage.get("gameID").toString());
 			gameCreater=operationMessage.get("host").toString();
-			//接下来弹出对话框,问是否接受邀请
+			//This is used to open new dialog which used to ask if user accept an invitation
 			MainWindow.openDialog();
 		}
 		if(operationMessage.get("commandType").equals("createGameReply"))
 		{
 			if(operationMessage.get("reply").equals("yes")){
-				//进入游戏界面
+				//Enter the game interface
 				gameID=Integer.parseInt(operationMessage.get("gameID").toString());
 				allPlayers=((String) operationMessage.get("players")).split(",");
 				game=new Game(gameID,allPlayers);
-				
-				System.out.println("进入游戏界面");
 				HashMap<String, Integer> scores=game.getNewstGameState().getScores();
 				score=scores;
 				if(sv!=null)
@@ -218,18 +215,16 @@ public class ConnectServer {
 				
 				if(username.equals(nextPlayer))
 				{
-					// 能执行
 					ScrabbleView.allButtonEnables(true);
 					
 				}
 				else
 				{
-					// 不能做
 				}
 				
 			}
 			if(operationMessage.get("reply").equals("no")){
-				//游戏开始失败（无人参加游戏，只有创建游戏者才会收到no）
+				//Game starts fail(No on accept invitation, only the game-creater will receive no)
 				MainWindow.frame.setVisible(true);
 
 				
@@ -253,9 +248,9 @@ public class ConnectServer {
 				return;
 			}
 			Operation operation;
+			//if user press change button, it will enter this if control flow
 			if(!operationMessage.get("pass").equals("yes"))
 			{
-				//进入更改游戏界面状态
 				ChangeScrabbleView.letter=operationMessage.get("letter").toString().charAt(0);
 				ChangeScrabbleView.x=Integer.parseInt(operationMessage.get("positionX").toString());
 				ChangeScrabbleView.y=Integer.parseInt(operationMessage.get("positionY").toString());
@@ -264,9 +259,8 @@ public class ConnectServer {
 				operation=new Operation(ChangeScrabbleView.letter,ChangeScrabbleView.x,ChangeScrabbleView.y,ChangeScrabbleView.user);
 				
 				game.nextState(operation);
-				// pass时不用投票，自动开始下一个人
-				//想得到最新的操作就是game.getgamestate的最新一个。
-				//更新GUI，显示添加的单词，但是不更改分数
+				//when user press pass button, no need to vote and will change to next player's turn
+				//update the Scrabble GUI but do not change score
 				char[][] grid=game.getNewstGameState().getGrid();
 				for(int x=1;x<21;x++)
 				{
@@ -293,21 +287,16 @@ public class ConnectServer {
 				ChangeScrabbleView.user=operationMessage.get("users").toString();
 				operation=new Operation(ChangeScrabbleView.user);
 				game.nextState(operation);
-				if(game.isFinish())
+				if(!game.isFinish())
 				{
-					//游戏结束
-				}
-				else
-				{
-					//下一个操作
 					String nextPlayer=game.getNewstGameState().getNextTurn();
 					ScrabbleView.userTurnDisplayLabel.setText(nextPlayer+"'s turn");
 					if(username.equals(nextPlayer))
 					{
 						ScrabbleView.allButtonEnables(true);
 					}
-					
-					//获取最新状态下的表格
+
+					//get the newest grid
 					char[][] grid=game.getNewstGameState().getGrid();
 					for(int x=1;x<21;x++)
 					{
@@ -331,8 +320,7 @@ public class ConnectServer {
 		}
 		else if(operationMessage.get("commandType").equals("vote"))
 		{
-			
-			// 投票开始,投票按钮变成可选状态
+			//vote is beginning and all button enables to edit
 			if(operationMessage.get("needToVote").equals("yes"))
 			{
 				if(username.equals(operationMessage.get("users")))
@@ -356,7 +344,6 @@ public class ConnectServer {
 					ScrabbleView.allButtonEnables(true);
 				}
 				
-				//获取最新状态下的表格
 				char[][] grid=game.getNewstGameState().getGrid();
 				for(int x=1;x<21;x++)
 				{
@@ -368,7 +355,6 @@ public class ConnectServer {
 							ScrabbleView.record[x][y]= String.valueOf(grid[x-1][y-1]);
 					}
 				}
-//				ScrabbleView.updateScrabble();
 				System.out.println("user: "+ChangeScrabbleView.user);
 				System.out.println("username: "+username);
 				if(!ChangeScrabbleView.user.equals(username))
@@ -380,11 +366,10 @@ public class ConnectServer {
 			
 			}
 		}
-		// 接收投票结果
+		// Receive the vote result
 		else if(operationMessage.get("commandType").equals("updateGameStateReply"))
 		{
-			//投票通过，更新GUI分数,下一个用户可以进行操作
-			System.out.println("投票通过，更新GUI分数,下一个用户可以进行操作");
+			//vote is passed, update GUI score and turn to next plater
 			if((boolean) operationMessage.get("result")){
 				HashMap<String, Integer> scores=game.getNewstGameState().getScores();
 				score=scores;
@@ -395,10 +380,8 @@ public class ConnectServer {
 				{
 					ScrabbleView.allButtonEnables(true);
 				}
-				//更改分数
+				//update score
 				ScrabbleView.updateScore();
-				
-				//获取最新状态下的表格
 				char[][] grid=game.getNewstGameState().getGrid();
 				for(int x=1;x<21;x++)
 				{
@@ -410,6 +393,7 @@ public class ConnectServer {
 							ScrabbleView.record[x][y]= String.valueOf(grid[x-1][y-1]);
 					}
 				}
+				//update scrabble and set back ground color
 				if(!ChangeScrabbleView.user.equals(username))
 				{
 					ScrabbleView.setBackGroundColor();
@@ -417,7 +401,7 @@ public class ConnectServer {
 				}
 				
 			}
-			//投票未通过，回到上一个gamestate,更新GUI，下一个用户可以开始操作
+			//vote is refused. return to last game state, update GUI and turn to next player
 			else{
 				
 				game.returnToLastGameState();
@@ -447,11 +431,9 @@ public class ConnectServer {
 				
 			}
 		}
-		//结束游戏,所以按钮都不可用，并且显示游戏结果
+		//Game is over. all button are not available and display the game result
 		else if(operationMessage.get("commandType").equals("terminateGame"))
 		{
-			ScrabbleView.yesBtn.setEnabled(false);
-			ScrabbleView.noBtn.setEnabled(false);
 			ScrabbleView.allButtonEnables(false);
 			
 			Iterator<Entry<String, Integer>> iterator = score.entrySet().iterator();
@@ -463,7 +445,6 @@ public class ConnectServer {
 				String user = entry.getKey();
 				Integer score = entry.getValue();
 				System.out.print("user: "+user+"  score: "+score);
-				//highestScore=score;
 				if(score>highestScore)
 				{
 					highestScore=score;
@@ -477,7 +458,6 @@ public class ConnectServer {
 				Entry<String, Integer> entry = iterator.next();
 				String user = entry.getKey();
 				Integer score = entry.getValue();
-				//highestScore=score;
 				if(score==highestScore)
 				{
 					highestScore=score;
@@ -504,7 +484,6 @@ public class ConnectServer {
 		{
 			String reason=MainWindow.inviteStatusTextArea.getText();
 			reason=reason+operationMessage.get("reason").toString();
-			System.out.println(reason);
 			MainWindow.inviteStatusTextArea.setText(reason);
 			MainWindow.frame.setVisible(true);
 			String[] invitedUser =new String[0];

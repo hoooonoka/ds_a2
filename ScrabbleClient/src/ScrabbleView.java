@@ -242,46 +242,7 @@ public class ScrabbleView {
 		  scrabbleTextField[18][0].setText("18");
 		  scrabbleTextField[19][0].setText("19");
 		  scrabbleTextField[20][0].setText("20");
-		  
-		//first char must be filled in this yellow box
-//		  scrabbleTextField[10][10].setBackground(Color.yellow);
-		  
-		  //score *3 red box
-//		  scrabbleTextField[1][1].setBackground(Color.red);
-//		  scrabbleTextField[1][10].setBackground(Color.red);
-//		  scrabbleTextField[10][1].setBackground(Color.red);
-//		  scrabbleTextField[1][20].setBackground(Color.red);
-//		  scrabbleTextField[20][1].setBackground(Color.red);
-//		  scrabbleTextField[20][10].setBackground(Color.red);
-//		  scrabbleTextField[10][20].setBackground(Color.red);
-//		  scrabbleTextField[20][20].setBackground(Color.red);
-//		  
-		//score *2 blue box
-//		  scrabbleTextField[1][5].setBackground(Color.cyan);
-//		  scrabbleTextField[1][15].setBackground(Color.cyan);
-//		  scrabbleTextField[5][1].setBackground(Color.cyan);
-//		  scrabbleTextField[15][1].setBackground(Color.cyan);	
-//		  scrabbleTextField[5][20].setBackground(Color.cyan);
-//		  scrabbleTextField[15][20].setBackground(Color.cyan);	
-//		  scrabbleTextField[20][5].setBackground(Color.cyan);
-//		  scrabbleTextField[20][15].setBackground(Color.cyan);
-//		  scrabbleTextField[9][9].setBackground(Color.cyan);
-//		  scrabbleTextField[11][9].setBackground(Color.cyan);
-//		  scrabbleTextField[9][11].setBackground(Color.cyan);
-//		  scrabbleTextField[11][11].setBackground(Color.cyan);
-//		  
-//		  scrabbleTextField[8][2].setBackground(Color.blue);
-//		  scrabbleTextField[8][8].setBackground(Color.blue);
-//		  scrabbleTextField[8][12].setBackground(Color.blue);
-//		  scrabbleTextField[8][19].setBackground(Color.blue);
-//		  scrabbleTextField[12][2].setBackground(Color.blue);
-//		  scrabbleTextField[12][8].setBackground(Color.blue);
-//		  scrabbleTextField[12][12].setBackground(Color.blue);	
-//		  scrabbleTextField[12][19].setBackground(Color.blue);	
-//		  scrabbleTextField[2][8].setBackground(Color.blue);
-//		  scrabbleTextField[2][12].setBackground(Color.blue);	
-//		  scrabbleTextField[19][12].setBackground(Color.blue);
-//		  scrabbleTextField[19][8].setBackground(Color.blue);
+		 
 		  
 		  
 		  for(int i=1; i<=20;i++)
@@ -302,36 +263,6 @@ public class ScrabbleView {
 		voteCheckBox.setForeground(Color.red);
 		voteCheckBox.setBounds(678, 209, 240, 50);
 		frame.getContentPane().add(voteCheckBox);
-		
-//		JLabel voteLabel = new JLabel("Your Vote");
-//		voteLabel.setForeground(Color.RED);
-//		voteLabel.setBounds(751, 207, 107, 16);
-//		voteLabel.setFont(new Font("Arial",Font.BOLD,18));
-//		frame.getContentPane().add(voteLabel);
-		
-
-//		yesBtn.addActionListener(new ActionListener() {
-//			public void actionPerformed(ActionEvent e) {
-//				AddTasks.YesVoteResult();
-//				yesBtn.setEnabled(false);
-//				noBtn.setEnabled(false);
-//			}
-//		});
-//		yesBtn.setBounds(690, 242, 63, 50);
-//		yesBtn.setEnabled(false);
-//		frame.getContentPane().add(yesBtn);
-//		
-
-//        noBtn.addActionListener(new ActionListener() {
-//        	public void actionPerformed(ActionEvent e) {
-//        		AddTasks.NoVoteResult();
-//        		yesBtn.setEnabled(false);
-//        		noBtn.setEnabled(false);
-//        	}
-//        });
-//		noBtn.setBounds(817, 242, 61, 50);
-//		noBtn.setEnabled(false);
-//		frame.getContentPane().add(noBtn);
 		
 		JLabel decisionLabel = new JLabel("Your choice");
 		decisionLabel.setForeground(Color.RED);
@@ -373,15 +304,7 @@ public class ScrabbleView {
 		passBtn.setBounds(802, 149, 117, 39);
 		passBtn.setEnabled(false);
 		frame.getContentPane().add(passBtn);
-		
-//		chatTextArea = new JTextArea();
-//		chatTextArea.setBounds(668, 377, 251, 137);
-//		chatTextArea.setEditable(false);
-//		frame.getContentPane().add(chatTextArea);
-//				
-//		JTextArea myMsgTextArea = new JTextArea();
-//		myMsgTextArea.setBounds(668, 554, 251, 50);
-//		frame.getContentPane().add(myMsgTextArea);
+
 		
 		JScrollPane chatScrollPane = new JScrollPane();
 		chatScrollPane.setBounds(668, 343, 251, 138);
@@ -462,7 +385,6 @@ public class ScrabbleView {
 		{
 			for(int j=1;j<21;j++)
            {
-             // record [i][j]= textfield[i][j].getText();
               textfield[i][j].setText(record[i][j]);
            }
 		}
@@ -554,8 +476,6 @@ public class ScrabbleView {
             	  yText =i-1;
             	  changedText = textfield[i][j].getText();
             	  time+=1;
-            	 // System.out.print(record[i][j]+"-----"+textfield[i][j].getText());
-            	  //System.out.println(changedText.toCharArray()[0]);
             	  
               }
               
@@ -595,7 +515,6 @@ public class ScrabbleView {
 			{
 				
 				scrabbleTextField[i][j].setText(record[i][j]);
-				//System.out.println(scrabbleTextField[i][j].getText());
 				if(!record[i][j].equals(""))
 				{
 					scrabbleTextField[i][j].setEnabled(false);
@@ -677,6 +596,10 @@ public class ScrabbleView {
 	public static void voteResult()
 	{
 		int n = JOptionPane.showConfirmDialog(null,"Please vote",null,JOptionPane.YES_NO_OPTION);
+		if(n==JOptionPane.CLOSED_OPTION)
+		{
+			AddTasks.NoVoteResult();
+		}
         if(n==JOptionPane.YES_OPTION){
 			AddTasks.YesVoteResult();
         }
