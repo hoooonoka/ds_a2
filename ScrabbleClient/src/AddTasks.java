@@ -13,15 +13,20 @@ public class AddTasks {
 	}
 	
 	//将添加单词操作添加到task列表中
-	public static void addLetter(char changedText,int x,int y){
+	public static void addLetter(char changedText,int x,int y, boolean isvote){
 		Operation operation=new Operation(changedText,x,y,ConnectServer.username);
 		ConnectServer.game.nextState(operation);
-		ConnectServer.tasks.add(JsonParser.generateJsonOperation(operation, ConnectServer.gameID));
+		String nextPlayer=ConnectServer.game.getNewstGameState().getNextTurn();
+		ScrabbleView.userTurnDisplayLabel.setText(nextPlayer+"'s turn");
+		ConnectServer.tasks.add(JsonParser.generateJsonOperation(operation, ConnectServer.gameID,isvote));
 	}
 	//将pass操作添加到task列表中
-	public static void pass(){
+	public static void pass(boolean isvote){
 		Operation operation=new Operation(ConnectServer.username);
-		ConnectServer.tasks.add(JsonParser.generateJsonOperation(operation, ConnectServer.gameID));
+		ConnectServer.game.nextState(operation);
+		String nextPlayer=ConnectServer.game.getNewstGameState().getNextTurn();
+		ScrabbleView.userTurnDisplayLabel.setText(nextPlayer+"'s turn");
+		ConnectServer.tasks.add(JsonParser.generateJsonOperation(operation, ConnectServer.gameID,isvote));
 	}
 	
 	//将投票结果添加到task列表

@@ -125,7 +125,7 @@ public class JsonParser
 	}
 	
 	// add operation message: send from client to server
-	public static JSONObject generateJsonOperation(Operation operation, int gameID)
+	public static JSONObject generateJsonOperation(Operation operation, int gameID, boolean vote)
 	{
 		JSONObject newCommand = new JSONObject();
 		newCommand.put("commandType", "operate");
@@ -142,16 +142,32 @@ public class JsonParser
 			newCommand.put("positionY", operation.getY());
 			newCommand.put("letter", String.valueOf(operation.getLetter()));
 		}
+		if(vote)
+		{
+			newCommand.put("vote","yes");
+		}
+		else
+		{
+			newCommand.put("vote","no");
+		}
 		return newCommand;
 	}
 	
 	// vote message: send from server to client
-	public static JSONObject generateJsonVote( int gameID, String user)
+	public static JSONObject generateJsonVote( int gameID, String user, boolean needToVote)
 	{
 		JSONObject newCommand = new JSONObject();
 		newCommand.put("commandType", "vote");
 		newCommand.put("users", user);
 		newCommand.put("gameID", gameID);
+		if(needToVote)
+		{
+			newCommand.put("needToVote", "yes");
+		}
+		else
+		{
+			newCommand.put("needToVote", "no");
+		}
 		return newCommand;
 	}
 	

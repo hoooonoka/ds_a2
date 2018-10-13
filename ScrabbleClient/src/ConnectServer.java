@@ -93,7 +93,7 @@ public class ConnectServer {
 								
 								
 								
-								System.out.println(reply1);
+								//System.out.println(reply1);
 								String[] message2=reply1.split(";",-1);
 								JSONObject operationMessage = (JSONObject)parser.parse(message2[0]);
 								
@@ -247,6 +247,11 @@ public class ConnectServer {
 		}
 		else if(operationMessage.get("commandType").equals("updateGameState"))
 		{
+			ChangeScrabbleView.user= operationMessage.get("users").toString();
+			if(operationMessage.get("users").equals(username))
+			{
+				return;
+			}
 			Operation operation;
 			if(!operationMessage.get("pass").equals("yes"))
 			{
@@ -273,10 +278,17 @@ public class ConnectServer {
 							ScrabbleView.record[x][y]= String.valueOf(grid[x-1][y-1]);
 					}
 				}
-				ScrabbleView.updateScrabble();
+				if(!ChangeScrabbleView.user.equals(username))
+				{
+					ScrabbleView.updateScrabble();
+				}
+				
 			}
 			else
 			{
+				ChangeScrabbleView.x=0;
+				ChangeScrabbleView.y=0;
+				
 				ChangeScrabbleView.user=operationMessage.get("users").toString();
 				operation=new Operation(ChangeScrabbleView.user);
 				game.nextState(operation);
@@ -306,7 +318,10 @@ public class ConnectServer {
 								ScrabbleView.record[x][y]= String.valueOf(grid[x-1][y-1]);
 						}
 					}
-					ScrabbleView.updateScrabble();
+					if(!ChangeScrabbleView.user.equals(username))
+					{
+						ScrabbleView.updateScrabble();
+					}
 					
 				}
 			}
@@ -314,11 +329,54 @@ public class ConnectServer {
 		}
 		else if(operationMessage.get("commandType").equals("vote"))
 		{
+			
 			// 投票开始,投票按钮变成可选状态
-			System.out.println("投票开始,投票按钮变成可选状态");
-			ScrabbleView.userTurnDisplayLabel.setText("Please Vote");
-			ScrabbleView.yesBtn.setEnabled(true);
-			ScrabbleView.noBtn.setEnabled(true);
+			if(operationMessage.get("needToVote").equals("yes"))
+			{
+				if(username.equals(operationMessage.get("users")))
+				{
+					String nextPlayer=game.getNewstGameState().getNextTurn();
+					ScrabbleView.userTurnDisplayLabel.setText(nextPlayer+"'s turn");
+					return;
+				}
+					
+				ScrabbleView.userTurnDisplayLabel.setText("Please Vote");
+				ScrabbleView.voteResult();
+			}
+			else{
+				GameState state=game.getNewstGameState();
+				state.setScores(game.getGameStates().get(game.getGameStates().size()-2).getScores());
+				String nextPlayer=game.getNewstGameState().getNextTurn();
+				ScrabbleView.userTurnDisplayLabel.setText(nextPlayer+"'s turn");
+				if(username.equals(nextPlayer))
+				{
+					ScrabbleView.allButtonEnables(true);
+				}
+				
+				//获取最新状态下的表格
+				char[][] grid=game.getNewstGameState().getGrid();
+				for(int x=1;x<21;x++)
+				{
+					for(int y=1;y<21;y++)
+					{
+						if(grid[x-1][y-1]=='\0')
+							ScrabbleView.record[x][y]="";
+						else
+							ScrabbleView.record[x][y]= String.valueOf(grid[x-1][y-1]);
+					}
+				}
+//				ScrabbleView.updateScrabble();
+				System.out.println("user: "+ChangeScrabbleView.user);
+				System.out.println("username: "+username);
+				if(!ChangeScrabbleView.user.equals(username))
+				{
+					System.out.println("123");
+					ScrabbleView.updateScrabble();
+					System.out.println("456");
+				}
+				
+			
+			}
 		}
 		// 接收投票结果
 		else if(operationMessage.get("commandType").equals("updateGameStateReply"))

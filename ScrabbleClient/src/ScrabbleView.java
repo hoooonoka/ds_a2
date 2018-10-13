@@ -25,6 +25,8 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
@@ -61,6 +63,7 @@ public class ScrabbleView {
 	public static JList scorelist;
 	public static String regx1="[a-zA-Z0-9 ]*";
 	public static JLabel messageTips = new JLabel("");
+	public static JCheckBox voteCheckBox;
 	/**
 	 * Launch the application.
 	 */
@@ -279,12 +282,12 @@ public class ScrabbleView {
 //		  scrabbleTextField[19][8].setBackground(Color.blue);
 		  
 		  
-//		  for(int i=1; i<=20;i++)
-//		  {
-//			  scrabbleTextField[i][i].setBackground(Color.pink);
-//			  scrabbleTextField[i][21-i].setBackground(Color.pink);
-//			  
-//		  }
+		  for(int i=1; i<=20;i++)
+		  {
+			  scrabbleTextField[i][i].setBackground(Color.pink);
+			  scrabbleTextField[i][21-i].setBackground(Color.pink);
+			  
+		  }
 		  
 		  for(int i=1;i<=20;i++){
 			  for (int j=1;j<=20;j++)
@@ -292,36 +295,41 @@ public class ScrabbleView {
 				  scrabbleTextField[i][j].setForeground(Color.gray);
 			  }
 		  }
+		  
+		voteCheckBox= new JCheckBox("Tick the box if you want to vote");
+		voteCheckBox.setForeground(Color.red);
+		voteCheckBox.setBounds(678, 209, 240, 50);
+		frame.getContentPane().add(voteCheckBox);
 		
-		JLabel voteLabel = new JLabel("Your Vote");
-		voteLabel.setForeground(Color.RED);
-		voteLabel.setBounds(751, 207, 107, 16);
-		voteLabel.setFont(new Font("Arial",Font.BOLD,18));
-		frame.getContentPane().add(voteLabel);
-		
-
-		yesBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				AddTasks.YesVoteResult();
-				yesBtn.setEnabled(false);
-				noBtn.setEnabled(false);
-			}
-		});
-		yesBtn.setBounds(690, 242, 63, 50);
-		yesBtn.setEnabled(false);
-		frame.getContentPane().add(yesBtn);
+//		JLabel voteLabel = new JLabel("Your Vote");
+//		voteLabel.setForeground(Color.RED);
+//		voteLabel.setBounds(751, 207, 107, 16);
+//		voteLabel.setFont(new Font("Arial",Font.BOLD,18));
+//		frame.getContentPane().add(voteLabel);
 		
 
-        noBtn.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        		AddTasks.NoVoteResult();
-        		yesBtn.setEnabled(false);
-        		noBtn.setEnabled(false);
-        	}
-        });
-		noBtn.setBounds(817, 242, 61, 50);
-		noBtn.setEnabled(false);
-		frame.getContentPane().add(noBtn);
+//		yesBtn.addActionListener(new ActionListener() {
+//			public void actionPerformed(ActionEvent e) {
+//				AddTasks.YesVoteResult();
+//				yesBtn.setEnabled(false);
+//				noBtn.setEnabled(false);
+//			}
+//		});
+//		yesBtn.setBounds(690, 242, 63, 50);
+//		yesBtn.setEnabled(false);
+//		frame.getContentPane().add(yesBtn);
+//		
+
+//        noBtn.addActionListener(new ActionListener() {
+//        	public void actionPerformed(ActionEvent e) {
+//        		AddTasks.NoVoteResult();
+//        		yesBtn.setEnabled(false);
+//        		noBtn.setEnabled(false);
+//        	}
+//        });
+//		noBtn.setBounds(817, 242, 61, 50);
+//		noBtn.setEnabled(false);
+//		frame.getContentPane().add(noBtn);
 		
 		JLabel decisionLabel = new JLabel("Your choice");
 		decisionLabel.setForeground(Color.RED);
@@ -332,13 +340,15 @@ public class ScrabbleView {
 
 		changeBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("press change button");
-				Boolean check=checkupdated(scrabbleTextField);
+				boolean isvote = false;
+				isvote=voteCheckBox.isSelected();
+				Boolean check=checkupdated(scrabbleTextField,isvote);
+				
 				if(check)
 				{
 				allButtonEnables(false);
+				setBackGroundColor();
 				}
-				
 			}
 		});
 		changeBtn.setBounds(668, 147, 117, 42);
@@ -348,9 +358,14 @@ public class ScrabbleView {
 
 		passBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				boolean isvote = false;
+				isvote=voteCheckBox.isSelected();
 				allButtonEnables(false);
+				ChangeScrabbleView.x=0;
+				ChangeScrabbleView.y=0;
 				updateScrabble();
-				AddTasks.pass();
+				AddTasks.pass(isvote);
+				setBackGroundColor();
 			}
 		});
 		passBtn.setBounds(802, 149, 117, 39);
@@ -440,12 +455,13 @@ public class ScrabbleView {
 	}
 	
 	public void updateBoard(JTextField [][] textfield)
-	{		
-		for(int i=0; i<21;i++)
+	{	
+		for(int i=1; i<21;i++)
 		{
-			for(int j=0;j<21;j++)
+			for(int j=1;j<21;j++)
            {
-              record [i][j]= textfield[i][j].getText();
+             // record [i][j]= textfield[i][j].getText();
+              textfield[i][j].setText(record[i][j]);
            }
 		}
 		
@@ -514,7 +530,7 @@ public class ScrabbleView {
 		return false;
 	}
 	
-	public boolean checkupdated(JTextField [][] textfield)
+	public boolean checkupdated(JTextField [][] textfield, boolean isvote)
 	{
 		int time=0;
 		int xText = 0;
@@ -522,6 +538,7 @@ public class ScrabbleView {
 		String changedText = null;
 		if(checkNeighbour(textfield))
 		{
+			updateBoard(textfield);
 			JOptionPane.showMessageDialog(null, "New letter must be adjacent to other letters",null,JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
@@ -544,7 +561,7 @@ public class ScrabbleView {
 		}
 		if(time==1){
 			System.out.println("insert letter");
-			AddTasks.addLetter(changedText.toCharArray()[0], xText, yText);
+			AddTasks.addLetter(changedText.toCharArray()[0], xText, yText,isvote);
 			return true;
 		}
 		else if(time==0)
@@ -554,16 +571,27 @@ public class ScrabbleView {
 		}
 		else
 		{
+			updateBoard(textfield);
 			JOptionPane.showMessageDialog(null, "You can only add one letter",null,JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
 	}
 	public static void updateScrabble()
 	{
+		if(ChangeScrabbleView.x==0&&ChangeScrabbleView.y==0)
+		{
+			
+		}
+		else
+		{
+			scrabbleTextField[ChangeScrabbleView.y+1][ChangeScrabbleView.x+1].setBackground(Color.blue);
+		}
+		
 		for(int i=1;i<21;i++)
 		{
 			for(int j=1;j<21;j++)
 			{
+				
 				scrabbleTextField[i][j].setText(record[i][j]);
 				//System.out.println(scrabbleTextField[i][j].getText());
 				if(!record[i][j].equals(""))
@@ -573,6 +601,34 @@ public class ScrabbleView {
 				
 			}
 		}
+	}
+	public static void setBackGroundColor()
+	{
+		
+		for(int i=0; i<21;i++)
+		{
+			 for(int j=0;j<21;j++)
+			 {
+				 
+				 scrabbleTextField[i][j].setBackground(Color.white);
+			 }
+		}
+		 for(int j=0;j<21;j++)
+		{
+			
+	    	  scrabbleTextField[0][j].setBackground(Color.orange);
+
+	    	 
+	    	  scrabbleTextField[j][0].setBackground(Color.orange);
+
+		}
+		  for(int i=1; i<=20;i++)
+		  {
+			 
+			  scrabbleTextField[i][i].setBackground(Color.pink);
+			  scrabbleTextField[i][21-i].setBackground(Color.pink);
+			  
+		  }
 	}
 	public static void allButtonEnables(boolean enable)
 	{
@@ -615,6 +671,16 @@ public class ScrabbleView {
 	public static void showMessageBox(String message)
 	{
 		JOptionPane.showMessageDialog(yesBtn, message);
+	}
+	public static void voteResult()
+	{
+		int n = JOptionPane.showConfirmDialog(null,"Please vote",null,JOptionPane.YES_NO_OPTION);
+        if(n==JOptionPane.YES_OPTION){
+			AddTasks.YesVoteResult();
+        }
+        else if(n==JOptionPane.NO_OPTION){
+    		AddTasks.NoVoteResult();
+        }
 	}
 	
 }
