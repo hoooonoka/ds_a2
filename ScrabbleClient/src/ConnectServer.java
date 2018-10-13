@@ -341,7 +341,8 @@ public class ConnectServer {
 					ScrabbleView.userTurnDisplayLabel.setText(nextPlayer+"'s turn");
 					return;
 				}
-					
+				Operation operation=new Operation(ChangeScrabbleView.letter,ChangeScrabbleView.x,ChangeScrabbleView.y,ChangeScrabbleView.user);
+				ScrabbleView.tryOperate(operation);
 				ScrabbleView.userTurnDisplayLabel.setText("Please Vote");
 				ScrabbleView.voteResult();
 			}

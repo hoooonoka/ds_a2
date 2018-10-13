@@ -29,7 +29,9 @@ import javax.swing.JCheckBox;
 
 import java.awt.event.ActionListener;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Pattern;
 import java.awt.event.ActionEvent;
 import javax.swing.JLabel;
@@ -682,5 +684,43 @@ public class ScrabbleView {
     		AddTasks.NoVoteResult();
         }
 	}
+	
+	public static void tryOperate(Operation operation)
+	{
+		
+		scrabbleTextField[operation.getY()+1][operation.getX()+1].setBackground(Color.red);
+		// vertical
+		for(int i=operation.getY()-1+1;i>=0+1;i--)
+		{
+			if(!record[i][operation.getX()+1].equals("")&&!record[i+1][operation.getX()+1].equals(""))
+				scrabbleTextField[i][operation.getX()+1].setBackground(Color.red);
+			else
+				break;
+		}
+		for(int i=operation.getY()+1+1;i<20+1;i++)
+		{
+			if(!record[i][operation.getX()+1].equals("")&&!record[i-1][operation.getX()+1].equals(""))
+				scrabbleTextField[i][operation.getX()+1].setBackground(Color.red);
+			else
+				break;
+		}
+		// horizontal
+		for(int i=operation.getX()-1+1;i>=0+1;i--)
+		{
+			if(!record[operation.getY()+1][i].equals("")&&!record[operation.getY()+1][i+1].equals(""))
+				scrabbleTextField[operation.getY()+1][i].setBackground(Color.red);
+			else
+				break;
+		}
+		for(int i=operation.getX()+1+1;i<20+1;i++)
+		{
+			if(!record[operation.getY()+1][i].equals("")&&!record[operation.getY()+1][i-1].equals(""))
+				scrabbleTextField[operation.getY()+1][i].setBackground(Color.red);	
+			else
+				break;
+		}
+		
+	}
+	
 	
 }
