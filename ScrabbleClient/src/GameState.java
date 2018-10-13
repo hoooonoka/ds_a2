@@ -143,7 +143,6 @@ public class GameState
 			Entry<String, Integer> entry = iterator.next();
 			String user = entry.getKey();
 			Integer score = entry.getValue();
-			System.out.println(user+score);
 		}
 		int score=scores.get(operation.getUser())+verticalScore+horizontalScore+1;
 		scores.remove(operation.getUser());

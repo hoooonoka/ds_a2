@@ -355,8 +355,6 @@ public class ConnectServer {
 							ScrabbleView.record[x][y]= String.valueOf(grid[x-1][y-1]);
 					}
 				}
-				System.out.println("user: "+ChangeScrabbleView.user);
-				System.out.println("username: "+username);
 				if(!ChangeScrabbleView.user.equals(username))
 				{
 					ScrabbleView.setBackGroundColor();

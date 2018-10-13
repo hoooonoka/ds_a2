@@ -140,14 +140,14 @@ public class ScrabbleView {
         JLabel turnLabel = new JLabel("User Turn:");
         turnLabel.setForeground(Color.red);
         turnLabel.setFont(new Font("Arial",Font.BOLD,18));
-		turnLabel.setBounds(21, 12, 103, 31);
+		turnLabel.setBounds(19, 45, 103, 31);
 		frame.getContentPane().add(turnLabel);
 		userTurnDisplayLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		
 		
 		userTurnDisplayLabel.setForeground(Color.black);
 		userTurnDisplayLabel.setFont(new Font("Arial",Font.BOLD,18));
-		userTurnDisplayLabel.setBounds(136, 19, 560, 16);
+		userTurnDisplayLabel.setBounds(134, 52, 560, 16);
 		frame.getContentPane().add(userTurnDisplayLabel);
 		
 		JScrollPane scoreScrollPane = new JScrollPane();
@@ -375,6 +375,19 @@ public class ScrabbleView {
 		messageTips.setBounds(690, 628, 229, 31);
 		frame.getContentPane().add(messageTips);
 		
+		JLabel lblYourName = new JLabel("Your Name:");
+		lblYourName.setBounds(19, 17, 108, 16);
+		lblYourName.setForeground(Color.red);
+		lblYourName.setFont(new Font("Arial",Font.BOLD,18));
+		frame.getContentPane().add(lblYourName);
+		
+		JLabel lblUserName = new JLabel(ConnectServer.username);
+		lblUserName.setBounds(364, 13, 61, 16);
+		lblUserName.setHorizontalAlignment(SwingConstants.CENTER);
+		lblUserName.setForeground(Color.black);
+		lblUserName.setFont(new Font("Arial",Font.BOLD,18));
+		frame.getContentPane().add(lblUserName);
+		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 	}
@@ -482,7 +495,6 @@ public class ScrabbleView {
            }
 		}
 		if(time==1){
-			System.out.println("insert letter");
 			AddTasks.addLetter(changedText.toCharArray()[0], xText, yText,isvote);
 			return true;
 		}
@@ -644,6 +656,4 @@ public class ScrabbleView {
 		}
 		
 	}
-	
-	
 }
