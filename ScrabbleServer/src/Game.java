@@ -1,3 +1,5 @@
+
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -92,10 +94,15 @@ public class Game
 		
 	}
 	
-//	public void endGame()
-//	{
-//		Control.stopGame(this.gameID,this.states.get(this.states.size()-1));
-//	}
+	public GameState getNewstGameState(){
+		return this.states.get(this.states.size()-1);
+	}
+	
+	public void returnToLastGameState(){
+		this.states.get(this.states.size()-1).setScores(this.states.get(this.states.size()-2).getScores());
+	}
+	
+
 	
 	public boolean isFinish()
 	{
@@ -109,24 +116,4 @@ public class Game
 		return true;
 	}
 	
-	public void printGame()
-	{
-		FileWriter writer;
-		try 
-		{
-			writer = new FileWriter("game"+this.gameID+".txt");
-			for(int i=0;i<operations.size();i++)
-			{
-				writer.write(GameState.printState(states.get(i)));
-				writer.write(Operation.printOperation(operations.get(i)));
-			}
-			writer.write(GameState.printState(states.get(states.size()-1)));
-			writer.close();
-		} 
-		catch (IOException e) 
-		{
-			System.out.println("error occurs when writing game file");
-		}
-		
-	}
 }
