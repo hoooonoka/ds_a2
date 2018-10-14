@@ -19,9 +19,9 @@ One challenge we faced during the implementation is building proper evaluation f
 ============================= part 2 =========================================
 
 improvement
-Currently we use select node to expand randomly in expansion phase. One possible improvement we could make in the future is that we can use UCB1 method to select node to expand. This might make our agent's performance better. This method we have not implement in our agent now, as this might make the coding harder to implement and we do not have much time for this.
+Currently we select and expand node randomly in expansion phase. One possible improvement we could make in the future is that we can use UCB1 method to select node to expand. This might make our agent's performance better. This method we have not implement in our agent now, as this might make the coding harder and we do not have much time for this.
 
-Another possible improvement we could make in the future is that we can use some techniques to inform opponents' action in our defensive agent. Actually simply chasing opponent agent is not a good idea as the opponent pacman can often run away easily. It might be a good idea to inferring opponent's action and position when defending our food. However, this might be quite hard to build such a good model. Maybe we should involve some technique from Markov Decision Processes, Q Learning or Plan Recognition.
+Another possible improvement we could make in the future is that we can use some techniques to inform opponents' action in our defensive agent. Actually simply chasing opponent agent is not a good idea as the opponent pacman can often run away easily. It might be a good idea to inferring opponent's action and position when defending our food. However, this might be quite hard to build such a good model. Maybe we should involve some technique from Markov Decision Processes, Q Learning or Plan Recognition techniques.
 
 
 ============================= part 3 =========================================
