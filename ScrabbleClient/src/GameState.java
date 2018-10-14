@@ -144,7 +144,21 @@ public class GameState
 			String user = entry.getKey();
 			Integer score = entry.getValue();
 		}
-		int score=scores.get(operation.getUser())+verticalScore+horizontalScore+1;
+		if(verticalScore==0)
+		{
+			int score=scores.get(operation.getUser())+horizontalScore+1;
+			scores.remove(operation.getUser());
+			scores.put(operation.getUser(), score);
+			return;
+		}
+		if(horizontalScore==0)
+		{
+			int score=scores.get(operation.getUser())+verticalScore+1;
+			scores.remove(operation.getUser());
+			scores.put(operation.getUser(), score);
+			return;
+		}
+		int score=scores.get(operation.getUser())+verticalScore+horizontalScore+2;
 		scores.remove(operation.getUser());
 		scores.put(operation.getUser(), score);
 	}

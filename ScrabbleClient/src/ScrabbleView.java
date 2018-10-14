@@ -258,13 +258,7 @@ public class ScrabbleView {
 		  scrabbleTextField[20][0].setText("20");
 		 
 		  
-		  
-		  for(int i=1; i<=20;i++)
-		  {
-			  scrabbleTextField[i][i].setBackground(Color.pink);
-			  scrabbleTextField[i][21-i].setBackground(Color.pink);
-			  
-		  }
+		
 		  
 		  for(int i=1;i<=20;i++){
 			  for (int j=1;j<=20;j++)
@@ -556,14 +550,7 @@ public class ScrabbleView {
 	    	 
 	    	  scrabbleTextField[j][0].setBackground(Color.orange);
 
-		}
-		  for(int i=1; i<=20;i++)
-		  {
-			 
-			  scrabbleTextField[i][i].setBackground(Color.pink);
-			  scrabbleTextField[i][21-i].setBackground(Color.pink);
-			  
-		  }
+		}	  
 	}
 	public static void allButtonEnables(boolean enable)
 	{
@@ -576,6 +563,10 @@ public class ScrabbleView {
 				scrabbleTextField[i][j].setEnabled(enable);
 			}
 			
+		}
+		if(checkRecord())
+		{
+			ConnectServer.tasks.add(JsonParser.generateJsonTerminateGame(ConnectServer.gameID, ConnectServer.username));
 		}
 	}
 	
