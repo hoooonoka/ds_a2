@@ -1,4 +1,3 @@
-
 import org.json.simple.JSONObject;
 
 public class JsonParser 
@@ -143,13 +142,9 @@ public class JsonParser
 			newCommand.put("letter", String.valueOf(operation.getLetter()));
 		}
 		if(vote)
-		{
-			newCommand.put("vote","yes");
-		}
+			newCommand.put("vote", "yes");
 		else
-		{
-			newCommand.put("vote","no");
-		}
+			newCommand.put("vote", "no");
 		return newCommand;
 	}
 	
@@ -161,13 +156,9 @@ public class JsonParser
 		newCommand.put("users", user);
 		newCommand.put("gameID", gameID);
 		if(needToVote)
-		{
 			newCommand.put("needToVote", "yes");
-		}
 		else
-		{
 			newCommand.put("needToVote", "no");
-		}
 		return newCommand;
 	}
 	
@@ -195,10 +186,19 @@ public class JsonParser
 		newCommand.put("commandType", "updateGameState");
 		newCommand.put("users", user);
 		newCommand.put("gameID", gameID);
-		newCommand.put("letter", String.valueOf(operation.getLetter()));
-		newCommand.put("positionX", operation.getX());
-		newCommand.put("positionY", operation.getY());
-		newCommand.put("score", score);
+		if(!game.getOperations().get(game.getOperations().size()-1).getPass())
+		{
+			newCommand.put("letter", String.valueOf(operation.getLetter()));
+			newCommand.put("positionX", operation.getX());
+			newCommand.put("positionY", operation.getY());
+			newCommand.put("score", score);
+			newCommand.put("pass", "no");
+		}
+		else
+		{
+			newCommand.put("pass","yes");
+		}
+
 		return newCommand;
 	}
 	
@@ -224,6 +224,7 @@ public class JsonParser
 	}
 	
 	// terminate game message: send from server to client
+	// also can be sent from client to server
 	public static JSONObject generateJsonTerminateGame( int gameID, String user)
 	{
 		JSONObject newCommand = new JSONObject();
@@ -255,23 +256,23 @@ public class JsonParser
 		String[] words=longString.split(",");
 		return words;
 	}
+	
 	// check alive: server to client
-	 public static JSONObject generateJsonAlive()
-	 {
-	  JSONObject newCommand = new JSONObject();
-	  newCommand.put("commandType", "alive");
-	  return newCommand;
-	 }
-	 
-	 // check alive reply: client to server
-	 public static JSONObject generateJsonAliveReply(String username)
-	 {
-	  JSONObject newCommand = new JSONObject();
-	  newCommand.put("commandType", "aliveReply");
-	  newCommand.put("user", username);
-	  return newCommand;
-	 }
-	 
+	public static JSONObject generateJsonAlive()
+	{
+		JSONObject newCommand = new JSONObject();
+		newCommand.put("commandType", "alive");
+		return newCommand;
+	}
+	
+	// check alive reply: client to server
+	public static JSONObject generateJsonAliveReply()
+	{
+		JSONObject newCommand = new JSONObject();
+		newCommand.put("commandType", "aliveReply");
+		return newCommand;
+	}
+	
 	// check alive: server to client
 	public static JSONObject generateJsonUserMessage(int gameID,String user,String message)
 	{
@@ -282,4 +283,5 @@ public class JsonParser
 		newCommand.put("message", message);
 		return newCommand;
 	}
+		
 }

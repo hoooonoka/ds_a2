@@ -1,5 +1,3 @@
-
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,11 +12,10 @@ public class GameState
 	private List<String> userList;
 	private String nextTurn;
 	private char[][] grid;
-	
 	public GameState(String[] users)
 	{
 		scores= new HashMap<>();
-		userList=new ArrayList();
+		userList=new ArrayList<String>();
 		for(int i=0;i<users.length;i++)
 		{
 			scores.put(users[i], 0);
@@ -49,7 +46,7 @@ public class GameState
 				grid[i][j]=oneGrid[i][j];
 			}
 		}
-		userList=new ArrayList();
+		userList=new ArrayList<String>();
 		List<String> oneUserList=oneState.getUserList();
 		for(int i=0;i<oneUserList.size();i++)
 		{
@@ -62,6 +59,7 @@ public class GameState
 	{
 		return this.scores;
 	}
+	
 	public void setScores(HashMap<String, Integer> scores)
 	{
 		this.scores=scores;
@@ -137,17 +135,35 @@ public class GameState
 				break;
 		}
 		// sum up
-		Iterator<Entry<String, Integer>> iterator = scores.entrySet().iterator();
-		while (iterator.hasNext()) 
+		if(verticalScore==0)
 		{
-			Entry<String, Integer> entry = iterator.next();
-			String user = entry.getKey();
-			Integer score = entry.getValue();
+			int score=scores.get(operation.getUser())+horizontalScore+1;
+			scores.remove(operation.getUser());
+			scores.put(operation.getUser(), score);
+			return;
 		}
-		int score=scores.get(operation.getUser())+verticalScore+horizontalScore+1;
+		if(horizontalScore==0)
+		{
+			int score=scores.get(operation.getUser())+verticalScore+1;
+			scores.remove(operation.getUser());
+			scores.put(operation.getUser(), score);
+			return;
+		}
+		int score=scores.get(operation.getUser())+verticalScore+horizontalScore+2;
 		scores.remove(operation.getUser());
 		scores.put(operation.getUser(), score);
 	}
 	
-
+	public static String printState(GameState state)
+	{
+		String s=new String("");
+		Iterator<Entry<String, Integer>> iterator = state.scores.entrySet().iterator();
+		while (iterator.hasNext()) {
+			Entry<String, Integer> entry = iterator.next();
+			String user = entry.getKey();
+			Integer score = entry.getValue();
+			s+=User.toString(user)+": "+score.toString()+"\n";
+		}
+		return s;
+	}
 }
