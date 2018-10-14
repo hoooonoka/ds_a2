@@ -64,6 +64,7 @@ public class ScrabbleView {
 	static JTextArea chatTextArea;
 	public static JList scorelist;
 	public static String regx1="[a-zA-Z0-9 ]*";
+	public static String checkletters="[a-zA-Z]";
 	public static JLabel messageTips = new JLabel("");
 	public static JCheckBox voteCheckBox;
 	/**
@@ -491,8 +492,17 @@ public class ScrabbleView {
            }
 		}
 		if(time==1){
-			AddTasks.addLetter(changedText.toCharArray()[0], xText, yText,isvote);
-			return true;
+			if(Pattern.matches(checkletters, changedText))
+			{
+				AddTasks.addLetter(changedText.toCharArray()[0], xText, yText,isvote);
+				return true;
+			}
+			else
+			{
+				JOptionPane.showMessageDialog(null, "You can only add letters",null,JOptionPane.ERROR_MESSAGE);
+				return false;
+			}
+			
 		}
 		else if(time==0)
 		{
@@ -564,10 +574,7 @@ public class ScrabbleView {
 			}
 			
 		}
-		if(checkRecord())
-		{
-			ConnectServer.tasks.add(JsonParser.generateJsonTerminateGame(ConnectServer.gameID, ConnectServer.username));
-		}
+	
 	}
 	
 	
@@ -648,28 +655,5 @@ public class ScrabbleView {
 				break;
 		}
 		
-	}
-	public static boolean checkRecord()
-	{
-		boolean isFull=true;
-		for(int x=1;x<21;x++)
-		{
-			for(int y=1;y<21;y++)
-			{
-				if(record[x][y]=="")
-				{
-					isFull=false;
-					break;
-				}
-			}
-			if(isFull==false)
-			{
-				break;
-			}
-		}
-		if(isFull)
-			return true;
-		else
-			return false;
 	}
 }
