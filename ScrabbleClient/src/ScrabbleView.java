@@ -136,6 +136,20 @@ public class ScrabbleView {
         menubar.add(gameMenu);
         frame.setJMenuBar(menubar);
         
+        //display user name
+        JLabel lblYourName = new JLabel("Your Name:");
+		lblYourName.setBounds(19, 17, 108, 16);
+		lblYourName.setForeground(Color.red);
+		lblYourName.setFont(new Font("Arial",Font.BOLD,18));
+		frame.getContentPane().add(lblYourName);
+		
+		JLabel lblUserName = new JLabel(ConnectServer.username);
+		lblUserName.setBounds(364, 13, 61, 16);
+		lblUserName.setHorizontalAlignment(SwingConstants.CENTER);
+		lblUserName.setForeground(Color.black);
+		lblUserName.setFont(new Font("Arial",Font.BOLD,18));
+		frame.getContentPane().add(lblUserName);
+        
         //user turn display
         JLabel turnLabel = new JLabel("User Turn:");
         turnLabel.setForeground(Color.red);
@@ -375,18 +389,6 @@ public class ScrabbleView {
 		messageTips.setBounds(690, 628, 229, 31);
 		frame.getContentPane().add(messageTips);
 		
-		JLabel lblYourName = new JLabel("Your Name:");
-		lblYourName.setBounds(19, 17, 108, 16);
-		lblYourName.setForeground(Color.red);
-		lblYourName.setFont(new Font("Arial",Font.BOLD,18));
-		frame.getContentPane().add(lblYourName);
-		
-		JLabel lblUserName = new JLabel(ConnectServer.username);
-		lblUserName.setBounds(364, 13, 61, 16);
-		lblUserName.setHorizontalAlignment(SwingConstants.CENTER);
-		lblUserName.setForeground(Color.black);
-		lblUserName.setFont(new Font("Arial",Font.BOLD,18));
-		frame.getContentPane().add(lblUserName);
 		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
