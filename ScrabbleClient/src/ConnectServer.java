@@ -106,7 +106,7 @@ public class ConnectServer {
 							{
 								endTime = System.currentTimeMillis();
 								long operationTime=endTime - startTime;
-								if(operationTime>5000)
+								if(operationTime>2000)
 								{
 									try{
 									ScrabbleView.frame.dispose();
@@ -121,6 +121,7 @@ public class ConnectServer {
 									MainWindow.avaliableUserList.setListData(a);
 									MainWindow.invitedUserList.setListData(a);
 									allUsersExceptSelf.clear();
+									invitedUsers.clear();
 									MainWindow.frame.dispose();
 									
 									LoginWindow.frame.setVisible(true);
@@ -251,6 +252,11 @@ public class ConnectServer {
 			//if user press change button, it will enter this if control flow
 			if(!operationMessage.get("pass").equals("yes"))
 			{
+				//check if the game table is full
+				if(ScrabbleView.checkRecord())
+				{
+					ConnectServer.tasks.add(JsonParser.generateJsonTerminateGame(ConnectServer.gameID, ConnectServer.username));
+				}
 				ChangeScrabbleView.letter=operationMessage.get("letter").toString().charAt(0);
 				ChangeScrabbleView.x=Integer.parseInt(operationMessage.get("positionX").toString());
 				ChangeScrabbleView.y=Integer.parseInt(operationMessage.get("positionY").toString());
@@ -281,6 +287,11 @@ public class ConnectServer {
 			}
 			else
 			{
+				//check if the game table is full
+				if(ScrabbleView.checkRecord())
+				{
+					ConnectServer.tasks.add(JsonParser.generateJsonTerminateGame(ConnectServer.gameID, ConnectServer.username));
+				}
 				ChangeScrabbleView.x=0;
 				ChangeScrabbleView.y=0;
 				
@@ -368,6 +379,10 @@ public class ConnectServer {
 		else if(operationMessage.get("commandType").equals("updateGameStateReply"))
 		{
 			//vote is passed, update GUI score and turn to next plater
+			if(ScrabbleView.checkRecord())
+			{
+				ConnectServer.tasks.add(JsonParser.generateJsonTerminateGame(ConnectServer.gameID, ConnectServer.username));
+			}
 			if((boolean) operationMessage.get("result")){
 				HashMap<String, Integer> scores=game.getNewstGameState().getScores();
 				score=scores;
@@ -401,7 +416,10 @@ public class ConnectServer {
 			}
 			//vote is refused. return to last game state, update GUI and turn to next player
 			else{
-				
+				if(ScrabbleView.checkRecord())
+				{
+					ConnectServer.tasks.add(JsonParser.generateJsonTerminateGame(ConnectServer.gameID, ConnectServer.username));
+				}
 				game.returnToLastGameState();
 				char[][] grid=game.getNewstGameState().getGrid();
 				for(int x=1;x<21;x++)
@@ -419,6 +437,7 @@ public class ConnectServer {
 				ScrabbleView.userTurnDisplayLabel.setText(nextPlayer+"'s turn");
 				if(username.equals(nextPlayer))
 				{
+					
 					ScrabbleView.allButtonEnables(true);
 				}
 				if(!ChangeScrabbleView.user.equals(username))

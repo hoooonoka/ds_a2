@@ -65,6 +65,11 @@ public class MainWindow {
         		{
         			frame.dispose();
         			LoginWindow.frame.setVisible(true);
+        			String[] a=new String[0];
+					MainWindow.avaliableUserList.setListData(a);
+					MainWindow.invitedUserList.setListData(a);
+					ConnectServer.allUsersExceptSelf.clear();
+					ConnectServer.invitedUsers.clear();
         			ConnectServer.isOffline=true;
         		}
         		else if(n==JOptionPane.NO_OPTION){}
@@ -111,6 +116,7 @@ public class MainWindow {
 		frame.getContentPane().add(statusLabel);
 		
 		inviteStatusTextArea.setBounds(23, 300, 390, 137);
+		inviteStatusTextArea.setLineWrap(true);
 		frame.getContentPane().add(inviteStatusTextArea);
 		frame.setVisible(true);
 		
@@ -131,8 +137,8 @@ public class MainWindow {
 					}
 					
 					ConnectServer.invitedUsers.add(chosenName);
-					String[] invitedUsers1 = ConnectServer.invitedUsers.toArray(new String[ConnectServer.invitedUsers.size()]);
-					invitedUserList.setListData(invitedUsers1);
+					String[] invitedUsersTemp = ConnectServer.invitedUsers.toArray(new String[ConnectServer.invitedUsers.size()]);
+					invitedUserList.setListData(invitedUsersTemp);
 				}
 				
 				
@@ -173,5 +179,4 @@ public class MainWindow {
 			}
         } 
 	}
-	
 }

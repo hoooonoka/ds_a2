@@ -658,4 +658,27 @@ public class ScrabbleView {
 		}
 		
 	}
+	public static boolean checkRecord()
+	{
+		boolean isFull=true;
+		for(int x=1;x<21;x++)
+		{
+			for(int y=1;y<21;y++)
+			{
+				if(record[x][y]=="")
+				{
+					isFull=false;
+					break;
+				}
+			}
+			if(isFull==false)
+			{
+				break;
+			}
+		}
+		if(isFull)
+			return true;
+		else
+			return false;
+	}
 }
